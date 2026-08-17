@@ -1,0 +1,154 @@
+/* -------------------------------------------------------------------------- */
+/* 共通スタイル */
+/* -------------------------------------------------------------------------- */
+html, body
+{
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+/* 横、高さ full */
+.full
+{
+    width: 100%;
+    height: 100%;
+}
+.full_horizon
+{
+    width: 100%;
+}
+.full_vertical
+{
+    height: 100%;
+}
+
+/* 非表示 */
+.hide
+{
+    display: none !important;
+}
+
+/* ポジション */
+.center
+{
+    text-align: center;
+}
+.left
+{
+    text-align: left;
+}
+.right
+{
+    text-align: right;
+}
+
+/* マージン */
+.margin
+{
+    margin: 10px;
+}
+.margin_small
+{
+    margin: 6px;        
+}
+.margin_large
+{
+    margin: 20px;       
+}
+.margin_xlarge
+{
+    margin: 40px;       
+}
+
+/* レイアウト & 余白 */
+.ui_panel.padding
+{
+    padding: 10px;
+}
+.ui_panel.padding_samll
+{
+    padding: 6px;       
+}
+.ui_panel.padding_large
+{
+    padding: 20px;      
+}
+.ui_panel.padding_xlarge
+{
+    padding: 40px;      
+}
+
+/* 縦並び */
+.ui_panel.layout_vertical
+{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.ui_panel.layout_vertical .spacer
+{
+    flex-grow: 1;
+}
+
+/* 横並び */
+.ui_panel.layout_horizon
+{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.ui_panel.layout_horizon .spacer
+{
+    flex-grow: 1;
+}
+
+/* ボタン */
+.ui_button
+{
+    color: #333;
+    font-size: 16px;
+    font-weight: 600;
+    width: 160px;
+    padding: 6px;
+    border: 2px solid #333;
+    border-radius: 10px;
+    cursor: pointer;
+}
+.ui_button:hover
+{
+    opacity: 0.5;
+}
+.ui_button.done
+{
+    background-color: lightblue;
+}
+
+/* -------------------------------------------------------------------------- */
+/* 個別スタイル */
+/* -------------------------------------------------------------------------- */
+#page_title
+{
+    background-color: #FCD54C;
+    position: relative;
+}
+
+#game_canvas
+{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#btn_start
+{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+}

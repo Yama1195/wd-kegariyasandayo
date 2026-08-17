@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>毛刈り屋さんだよ～</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: sans-serif;
+            background-color: #B3E5FC; /* 本編と同じ青空 */
+            overflow: hidden;
+            user-select: none;
+            position: relative;
+        }
+
+        /* --- 背景装飾：流れる雲 --- */
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.88);
+            border-radius: 50px;
+            z-index: 1;
+            animation: moveCloud linear infinite;
+        }
+        .cloud::before, .cloud::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.88);
+            border-radius: 50%;
+        }
+        .cloud1 {
+            width: 120px; height: 40px; top: 10%; left: -150px;
+            animation-duration: 25s; animation-delay: 0s;
+        }
+        .cloud1::before { width: 50px; height: 50px; top: -20px; left: 20px; }
+        .cloud1::after { width: 40px; height: 40px; top: -15px; left: 55px; }
+
+        .cloud2 {
+            width: 160px; height: 50px; top: 22%; left: -200px;
+            animation-duration: 35s; animation-delay: 10s;
+        }
+        .cloud2::before { width: 60px; height: 60px; top: -25px; left: 25px; }
+        .cloud2::after { width: 50px; height: 50px; top: -20px; left: 70px; }
+
+        .cloud3 {
+            width: 100px; height: 35px; top: 5%; left: -120px;
+            animation-duration: 20s; animation-delay: 5s;
+        }
+        .cloud3::before { width: 40px; height: 40px; top: -15px; left: 15px; }
+        .cloud3::after { width: 35px; height: 35px; top: -10px; left: 45px; }
+
+        @keyframes moveCloud {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(calc(100vw + 300px)); }
+        }
+
+        /* --- 背景装飾：草原 --- */
+        .grassland {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 35vh;
+            background-color: #8BC34A; /* 本編と同じ地表色 */
+            z-index: 2;
+            border-top-left-radius: 50% 20px;
+            border-top-right-radius: 50% 20px;
+        }
+
+        /* --- 背景装飾：PNG画像 --- */
+        .scattered-img {
+            position: absolute;
+            z-index: 3;
+            pointer-events: none;
+            opacity: 0.85;
+            filter: drop-shadow(0 8px 12px rgba(0,0,0,0.18));
+            object-fit: contain;
+        }
+
+        .rot-1 { transform: rotate(-20deg); }
+        .rot-2 { transform: rotate(25deg); }
+        .rot-3 { transform: scaleX(-1) rotate(-30deg); }
+        .rot-4 { transform: scaleX(-1) rotate(20deg); }
+        .rot-5 { transform: rotate(-40deg); }
+        .rot-6 { transform: rotate(35deg); }
+
+        /* --- メインコンテンツカード --- */
+        .game-container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.92);
+            padding: 40px 50px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            max-width: 480px;
+            width: 85%;
+            backdrop-filter: blur(3px);
+        }
+
+        h1 {
+            color: #E91E63;
+            font-size: 2.6rem;
+            font-weight: bold;
+            margin: 0 0 10px 0;
+            text-shadow: 2px 2px 0 #fff;
+        }
+
+        .subtitle {
+            color: #444;
+            font-size: 1.05rem;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn {
+            width: 200px;
+            height: 50px;
+            line-height: 50px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #fff;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s;
+            outline: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn-start {
+            background-color: #4CAF50;
+        }
+
+        .btn-howTo {
+            background-color: #00BCD4;
+        }
+
+        /* --- あそびかたモーダル --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-body {
+            background: #fff;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 440px;
+            width: 85%;
+            text-align: left;
+            color: #333;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #ddd;
+            color: #333;
+            text-align: center;
+        }
+
+        .modal-list {
+            padding-left: 20px;
+            margin-bottom: 25px;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .modal-list li {
+            margin-bottom: 10px;
+        }
+
+        .highlight {
+            color: #FF5722;
+            font-weight: bold;
+        }
+
+        .btn-close {
+            display: block;
+            margin: 0 auto;
+            width: 120px;
+            height: 40px;
+            line-height: 40px;
+            background-color: #757575;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-close:hover {
+            opacity: 0.85;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 背景装飾：流れる雲 -->
+    <div class="cloud cloud1"></div>
+    <div class="cloud cloud2"></div>
+    <div class="cloud cloud3"></div>
+
+    <!-- 背景装飾：草原 -->
+    <div class="grassland"></div>
+
+    <!-- 背景装飾：PNG画像アセット（ルートからの相対パスに変更） -->
+    <img src="./app/assets/img/player1_attack.png" class="scattered-img rot-1" style="top: 10%; left: 12%; width: 170px;" alt="player">
+    <img src="./app/assets/img/enemy1.png" class="scattered-img rot-2" style="top: 8%; right: 12%; width: 160px;" alt="enemy">
+    <img src="./app/assets/img/player1_attack.png" class="scattered-img rot-3" style="bottom: 10%; left: 14%; width: 180px;" alt="player">
+    <img src="./app/assets/img/enemy1.png" class="scattered-img rot-4" style="bottom: 8%; right: 15%; width: 170px;" alt="enemy">
+    <img src="./app/assets/img/enemy1.png" class="scattered-img rot-5" style="top: 40%; left: 6%; width: 140px;" alt="enemy">
+    <img src="./app/assets/img/player1_attack.png" class="scattered-img rot-6" style="top: 38%; right: 7%; width: 150px;" alt="player">
+
+    <!-- メインコンテンツ -->
+    <div class="game-container">
+        <h1>毛刈り屋さんだよ～</h1>
+        <div class="subtitle">タイミングよく毛を刈り取ろう！</div>
+
+        <div class="button-group">
+            <button id="btn_start" class="btn btn-start">ゲームスタート</button>
+            <button id="btn_howTo" class="btn btn-howTo">あそびかた</button>
+        </div>
+    </div>
+
+    <!-- あそびかたモーダル -->
+    <div id="modal" class="modal-overlay">
+        <div class="modal-body">
+            <div class="modal-title">あそびかた</div>
+            <ul class="modal-list">
+                <li>
+                    <span class="highlight">スペースキー</span> または <span class="highlight">画面タップ</span> で毛刈りアクションを行います。
+                </li>
+                <li>
+                    左から走ってくる敵が、<span class="highlight">自分に近づいたタイミング</span> で毛を刈り取りましょう。
+                </li>
+                <li>
+                    タイミングが合うと「毛刈り成功」となりスコアが増えます。連続で成功させるとコンボ数が加算されます。
+                </li>
+                <li>
+                    ぶつかると「たいりょく」が減り、0になるとゲームオーバーです。
+                </li>
+            </ul>
+            <button id="btn_close" class="btn-close">とじる</button>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(function() {
+            // スタートボタン -> ゲーム本編画面（app/views/front/game.html）へ遷移
+            $('#btn_start').on('click', function() {
+                window.location.href = './app/views/front/game.html';
+            });
+
+            // あそびかたボタン -> モーダル開く
+            $('#btn_howTo').on('click', function() {
+                $('#modal').addClass('active');
+            });
+
+            // とじるボタン -> モーダル閉じる
+            $('#btn_close, #modal').on('click', function(e) {
+                if (e.target === this) {
+                    $('#modal').removeClass('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
