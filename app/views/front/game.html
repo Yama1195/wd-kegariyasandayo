@@ -2,7 +2,7 @@
 <html lang="ja">
 
 <head>
- <title>おしまい屋さんだよ</title>
+ <title>毛刈り屋さんだよ</title>
  <meta charset="UTF-8">
  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -12,17 +12,84 @@
  <!-- JS読み込み（jquery） -->
  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
  <script src="../../assets/js/front/front_game.js"></script>
+
+ <style>
+  /* スタート前のパネル配置スタイル */
+  #start_panel {
+   position: absolute !important;
+   top: 0 !important;
+   left: 0 !important;
+   width: 100vw !important;
+   height: 100vh !important;
+   display: flex !important;
+   flex-direction: column !important;
+   justify-content: center !important;
+   align-items: center !important;
+   gap: 20px !important;
+   z-index: 1000 !important;
+   background-color: rgba(0, 0, 0, 0.3) !important;
+   margin: 0 !important;
+   padding: 0 !important;
+  }
+
+  /* JS側で付与される .hide を絶対最優先で非表示にする設定 */
+  .hide,
+  #start_panel.hide,
+  #btn_start.hide {
+   display: none !important;
+  }
+
+  /* ボタン共通スタイル */
+  .custom_start_btn {
+   position: static !important;
+   transform: none !important;
+   margin: 0 !important;
+   width: 240px !important;
+   padding: 14px 0 !important;
+   font-size: 1.1rem !important;
+   font-weight: bold !important;
+   color: #ffffff !important;
+   border: none !important;
+   border-radius: 30px !important;
+   cursor: pointer !important;
+   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3) !important;
+   transition: transform 0.2s, background-color 0.2s !important;
+   text-align: center !important;
+  }
+
+  .custom_start_btn:hover {
+   transform: scale(1.05) !important;
+  }
+
+  #btn_start {
+   background-color: #4CAF50 !important;
+  }
+
+  #btn_back_title {
+   background-color: #757575 !important;
+  }
+ </style>
 </head>
 
 <body>
 
  <!-- 開始ボタンエリア -->
- <div id="start_panel" class="ui_panel layout_vertical full center">
-  <button id="btn_start" class="ui_button done margin">ゲームスタート</button> 
+ <div id="start_panel">
+  <button id="btn_start" class="custom_start_btn">ゲームスタート</button> 
+  <button id="btn_back_title" class="custom_start_btn">タイトルへ戻る</button>
  </div>
 
  <!-- ゲーム描画用キャンバス -->
  <canvas id="game_canvas"></canvas>
 
+ <script>
+  $(function() {
+    // タイトルへ戻るボタンのイベント（off('click')に消されないよう委譲で設定）
+    $(document).on('click', '#btn_back_title', function(e) {
+      e.stopPropagation();
+      window.location.href = '../../../index.html';
+    });
+  });
+ </script>
 </body>
 </html>
