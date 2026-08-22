@@ -17,7 +17,7 @@
             justify-content: center;
             align-items: center;
             font-family: sans-serif;
-            background-color: #B3E5FC; /* 本編と同じ青空 */
+            background-color: #B3E5FC;
             overflow: hidden;
             user-select: none;
             position: relative;
@@ -70,7 +70,7 @@
             left: 0;
             width: 100%;
             height: 35vh;
-            background-color: #8BC34A; /* 本編と同じ地表色 */
+            background-color: #8BC34A;
             z-index: 2;
             border-top-left-radius: 50% 20px;
             border-top-right-radius: 50% 20px;
@@ -84,6 +84,7 @@
             opacity: 0.85;
             filter: drop-shadow(0 8px 12px rgba(0,0,0,0.18));
             object-fit: contain;
+            max-width: 18vw;
         }
 
         .rot-1 { transform: rotate(-20deg); }
@@ -109,7 +110,7 @@
 
         h1 {
             color: #E91E63;
-            font-size: 2.6rem;
+            font-size: clamp(1.8rem, 4vw, 2.6rem);
             font-weight: bold;
             margin: 0 0 10px 0;
             text-shadow: 2px 2px 0 #fff;
@@ -117,7 +118,7 @@
 
         .subtitle {
             color: #444;
-            font-size: 1.05rem;
+            font-size: clamp(0.9rem, 2vw, 1.05rem);
             margin-bottom: 30px;
             font-weight: bold;
         }
@@ -130,7 +131,7 @@
         }
 
         .btn {
-            width: 200px;
+            width: 220px;
             height: 50px;
             line-height: 50px;
             border: none;
@@ -155,6 +156,10 @@
 
         .btn-start {
             background-color: #4CAF50;
+        }
+
+        .btn-tutorial {
+            background-color: #FF9800; /* オレンジ（チュートリアル用） */
         }
 
         .btn-howTo {
@@ -189,6 +194,8 @@
             padding: 30px;
             max-width: 440px;
             width: 85%;
+            max-height: 85vh;
+            overflow-y: auto;
             text-align: left;
             color: #333;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
@@ -251,7 +258,7 @@
     <!-- 背景装飾：草原 -->
     <div class="grassland"></div>
 
-    <!-- 背景装飾：PNG画像アセット（ルートからの相対パスに変更） -->
+    <!-- 背景装飾：PNG画像アセット -->
     <img src="./app/assets/img/player1_attack.png" class="scattered-img rot-1" style="top: 10%; left: 12%; width: 170px;" alt="player">
     <img src="./app/assets/img/enemy1.png" class="scattered-img rot-2" style="top: 8%; right: 12%; width: 160px;" alt="enemy">
     <img src="./app/assets/img/player1_attack.png" class="scattered-img rot-3" style="bottom: 10%; left: 14%; width: 180px;" alt="player">
@@ -266,6 +273,7 @@
 
         <div class="button-group">
             <button id="btn_start" class="btn btn-start">ゲームスタート</button>
+            <button id="btn_tutorial" class="btn btn-tutorial">チュートリアル</button>
             <button id="btn_howTo" class="btn btn-howTo">あそびかた</button>
         </div>
     </div>
@@ -276,7 +284,7 @@
             <div class="modal-title">あそびかた</div>
             <ul class="modal-list">
                 <li>
-                    <span class="highlight">スペースキー</span> または <span class="highlight">画面タップ</span> で毛刈りアクションを行います。
+                    <span class="highlight">スペースキー</span> または <span class="highlight">画面クリック</span> で毛刈りアクションを行います。
                 </li>
                 <li>
                     左から走ってくる敵が、<span class="highlight">自分に近づいたタイミング</span> で毛を刈り取りましょう。
@@ -296,17 +304,22 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(function() {
-            // スタートボタン -> ゲーム本編画面（app/views/front/game.html）へ遷移
+            // スタートボタン -> 本編画面へ遷移
             $('#btn_start').on('click', function() {
                 window.location.href = './app/views/front/game.html';
             });
 
-            // あそびかたボタン -> モーダル開く
+            // チュートリアルボタン -> チュートリアル画面へ遷移
+            $('#btn_tutorial').on('click', function() {
+                window.location.href = './app/views/front/tutorial.html';
+            });
+
+            // あそびかたボタン -> モーダル表示
             $('#btn_howTo').on('click', function() {
                 $('#modal').addClass('active');
             });
 
-            // とじるボタン -> モーダル閉じる
+            // モーダル閉じる
             $('#btn_close, #modal').on('click', function(e) {
                 if (e.target === this) {
                     $('#modal').removeClass('active');
