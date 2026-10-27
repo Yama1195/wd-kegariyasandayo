@@ -608,12 +608,12 @@ function draw()
         let offset_sub = (width <= 1024) ? 170 : 230;
 
         ctx.fillStyle = "#FFD700";
-        ctx.font = "bold " + font_size_main + " sans-serif";
+        ctx.font = "bold " + font_size_main + " 'M PLUS Rounded 1c', sans-serif";
         ctx.fillText("毛刈り成功!!", player.x - 70, player.y - offset_main);
 
         if (combo >= 2) {
             ctx.fillStyle = "#FF5722";
-            ctx.font = "bold " + font_size_sub + " sans-serif";
+            ctx.font = "bold " + font_size_sub + " 'M PLUS Rounded 1c', sans-serif";
             ctx.fillText("連続毛刈り " + combo + "回!", player.x - 60, player.y - offset_sub);
         }
     }
@@ -621,7 +621,7 @@ function draw()
     // 6. UI表示
     if (current_state !== GAME_STATE.TITLE) {
         ctx.fillStyle = "#333";
-        ctx.font = "bold 22px sans-serif";
+        ctx.font = "bold 22px 'M PLUS Rounded 1c', sans-serif";
         ctx.fillText("毛刈り成功数: " + score, 20, 40);
 
         if (combo >= 2) {
@@ -640,7 +640,7 @@ function draw()
         ctx.fillText("たいりょく: " + hp_hearts, 20, 105);
 
         let type_name = ENEMY_TYPE_NAMES[enemy.type] || "通常";
-        ctx.font = "16px sans-serif";
+        ctx.font = "16px 'M PLUS Rounded 1c', sans-serif";
         ctx.fillText("つぎの敵: " + type_name, 20, 135);
     }
 
@@ -652,29 +652,29 @@ function draw()
         ctx.textAlign = "center";
 
         ctx.fillStyle = "#FF3333";
-        ctx.font = "bold 52px sans-serif";
+        ctx.font = "bold 52px 'M PLUS Rounded 1c', sans-serif";
         ctx.fillText("ゲームオーバー", (width || 800) / 2, (height || 600) / 2 - 70);
 
         ctx.fillStyle = "#FFF";
-        ctx.font = "bold 24px sans-serif";
+        ctx.font = "bold 24px 'M PLUS Rounded 1c', sans-serif";
         ctx.fillText("最終スコア: " + score + " 回成功", (width || 800) / 2, (height || 600) / 2 - 10);
 
         ctx.fillStyle = "#FFD700";
-        ctx.font = "bold 22px sans-serif";
+        ctx.font = "bold 22px 'M PLUS Rounded 1c', sans-serif";
         ctx.fillText("最大連続毛刈り数: " + max_combo + " 回", (width || 800) / 2, (height || 600) / 2 + 25);
 
         // ボタン1: もう一度あそぶ
         ctx.fillStyle = "#4CAF50";
         ctx.fillRect(buttons.retry.x, buttons.retry.y, buttons.retry.w, buttons.retry.h);
         ctx.fillStyle = "#FFF";
-        ctx.font = "bold 18px sans-serif";
+        ctx.font = "bold 18px 'M PLUS Rounded 1c', sans-serif";
         ctx.fillText("もう一度あそぶ", buttons.retry.x + buttons.retry.w / 2, buttons.retry.y + 32);
 
         // ボタン2: タイトルへ戻る
         ctx.fillStyle = "#757575";
         ctx.fillRect(buttons.top.x, buttons.top.y, buttons.top.w, buttons.top.h);
         ctx.fillStyle = "#FFF";
-        ctx.font = "bold 18px sans-serif";
+        ctx.font = "bold 18px 'M PLUS Rounded 1c', sans-serif";
         ctx.fillText("タイトルへ戻る", buttons.top.x + buttons.top.w / 2, buttons.top.y + 32);
 
         ctx.textAlign = "left";

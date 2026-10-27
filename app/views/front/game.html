@@ -6,6 +6,11 @@
  <meta charset="UTF-8">
  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
+ <!-- Google Fonts: 丸ゴシック「M PLUS Rounded 1c」を読み込み -->
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700;800&display=swap" rel="stylesheet">
+
  <!-- CSS読み込み -->
  <link rel="stylesheet" href="../../assets/css/front/front.css">
 
@@ -22,6 +27,7 @@
    touch-action: none;
    margin: 0;
    padding: 0;
+   font-family: 'M PLUS Rounded 1c', sans-serif;
   }
 
   /* キャンバスを全画面フィットさせる */
@@ -47,7 +53,6 @@
    color: #fff;
    text-align: center;
    padding: 20px;
-   font-family: sans-serif;
   }
 
   #rotate_warning .warning_icon {
@@ -58,7 +63,7 @@
 
   #rotate_warning .warning_text {
    font-size: 1.2rem;
-   font-weight: bold;
+   font-weight: 800;
    line-height: 1.6;
   }
 
@@ -107,8 +112,9 @@
    margin: 0 !important;
    width: 240px !important;
    padding: 14px 0 !important;
+   font-family: 'M PLUS Rounded 1c', sans-serif !important;
    font-size: 1.1rem !important;
-   font-weight: bold !important;
+   font-weight: 800 !important;
    color: #ffffff !important;
    border: none !important;
    border-radius: 30px !important;
@@ -154,11 +160,11 @@
 
  <script>
   $(function() {
-    // タイトルへ戻るボタンのイベント（委譲で設定）
-    $(document).on('click', '#btn_back_title', function(e) {
-      e.stopPropagation();
-      window.location.href = '../../../index.html';
-    });
+   // タイトルへ戻るボタンのイベント（委譲で設定）
+   $(document).on('click', '#btn_back_title', function(e) {
+     e.stopPropagation();
+     window.location.href = '../../../index.html';
+   });
   });
  </script>
 </body>

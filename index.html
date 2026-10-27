@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>毛刈り屋さんだよ～</title>
+    
+    <!-- Google Fonts: ポップで可愛い丸ゴシック「M PLUS Rounded 1c」を読み込み -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700;800&display=swap" rel="stylesheet">
+
     <style>
         * {
             box-sizing: border-box;
@@ -20,7 +26,8 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: sans-serif;
+            /* 全体のフォントを丸ゴシックに変更 */
+            font-family: 'M PLUS Rounded 1c', sans-serif;
             background-color: #B3E5FC;
             overflow: hidden;
             user-select: none;
@@ -28,7 +35,7 @@
             touch-action: none;
         }
 
-        /* --- 画面回転アラート（スマホの縦向き時のみ表示） --- */
+        /* --- 画面回転アラート --- */
         #rotate_warning {
             display: none;
             position: fixed;
@@ -44,7 +51,6 @@
             color: #fff;
             text-align: center;
             padding: 20px;
-            font-family: sans-serif;
         }
 
         #rotate_warning .warning_icon {
@@ -55,11 +61,10 @@
 
         #rotate_warning .warning_text {
             font-size: 1.2rem;
-            font-weight: bold;
+            font-weight: 800;
             line-height: 1.6;
         }
 
-        /* スマホかつ縦向きの場合のみ表示 */
         @media screen and (max-width: 1024px) and (orientation: portrait) {
             #rotate_warning {
                 display: flex !important;
@@ -86,24 +91,15 @@
             background: rgba(255, 255, 255, 0.88);
             border-radius: 50%;
         }
-        .cloud1 {
-            width: 120px; height: 40px; top: 10%; left: -150px;
-            animation-duration: 25s; animation-delay: 0s;
-        }
+        .cloud1 { width: 120px; height: 40px; top: 10%; left: -150px; animation-duration: 25s; }
         .cloud1::before { width: 50px; height: 50px; top: -20px; left: 20px; }
         .cloud1::after { width: 40px; height: 40px; top: -15px; left: 55px; }
 
-        .cloud2 {
-            width: 160px; height: 50px; top: 22%; left: -200px;
-            animation-duration: 35s; animation-delay: 10s;
-        }
+        .cloud2 { width: 160px; height: 50px; top: 22%; left: -200px; animation-duration: 35s; animation-delay: 10s; }
         .cloud2::before { width: 60px; height: 60px; top: -25px; left: 25px; }
         .cloud2::after { width: 50px; height: 50px; top: -20px; left: 70px; }
 
-        .cloud3 {
-            width: 100px; height: 35px; top: 5%; left: -120px;
-            animation-duration: 20s; animation-delay: 5s;
-        }
+        .cloud3 { width: 100px; height: 35px; top: 5%; left: -120px; animation-duration: 20s; animation-delay: 5s; }
         .cloud3::before { width: 40px; height: 40px; top: -15px; left: 15px; }
         .cloud3::after { width: 35px; height: 35px; top: -10px; left: 45px; }
 
@@ -148,59 +144,61 @@
             position: relative;
             z-index: 10;
             text-align: center;
-            background-color: rgba(255, 255, 255, 0.92);
-            padding: 30px 40px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            background-color: rgba(255, 255, 255, 0.94);
+            padding: 35px 45px;
+            border-radius: 24px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
             max-width: 480px;
             width: 85%;
-            backdrop-filter: blur(3px);
+            border: 4px solid #FFF;
         }
 
         h1 {
             color: #E91E63;
-            font-size: clamp(1.5rem, 3.5vw, 2.4rem);
-            font-weight: bold;
+            font-size: clamp(1.6rem, 3.8vw, 2.5rem);
+            font-weight: 800;
             margin: 0 0 8px 0;
-            text-shadow: 2px 2px 0 #fff;
+            /* 文字に立体的なフチと影をつけて絵本風に */
+            text-shadow: 2px 2px 0 #FFE0B2, 4px 4px 0 rgba(0,0,0,0.08);
         }
 
         .subtitle {
-            color: #444;
-            font-size: clamp(0.85rem, 1.8vw, 1rem);
-            margin-bottom: 22px;
-            font-weight: bold;
+            color: #555;
+            font-size: clamp(0.9rem, 1.9vw, 1.05rem);
+            margin-bottom: 25px;
+            font-weight: 700;
         }
 
         .button-group {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
             align-items: center;
         }
 
         .btn {
-            width: 220px;
-            height: 46px;
-            line-height: 46px;
+            width: 230px;
+            height: 48px;
+            line-height: 48px;
             border: none;
-            border-radius: 8px;
-            font-size: 1.05rem;
-            font-weight: bold;
+            border-radius: 24px;
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 800;
             color: #fff;
             cursor: pointer;
-            transition: transform 0.1s, opacity 0.2s;
+            transition: transform 0.15s ease, opacity 0.2s;
             outline: none;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
         }
 
         .btn:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
+            opacity: 0.92;
+            transform: translateY(-3px) scale(1.02);
         }
 
         .btn:active {
-            transform: translateY(1px);
+            transform: translateY(1px) scale(0.98);
         }
 
         .btn-start {
@@ -239,8 +237,8 @@
 
         .modal-body {
             background: #fff;
-            border-radius: 12px;
-            padding: 25px;
+            border-radius: 20px;
+            padding: 30px;
             max-width: 440px;
             width: 85%;
             max-height: 80vh;
@@ -248,75 +246,67 @@
             text-align: left;
             color: #333;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border: 4px solid #FF9800;
         }
 
         .modal-title {
-            font-size: 1.3rem;
-            font-weight: bold;
+            font-size: 1.35rem;
+            font-weight: 800;
             margin-top: 0;
             margin-bottom: 15px;
-            padding-bottom: 6px;
-            border-bottom: 2px solid #ddd;
-            color: #333;
+            padding-bottom: 8px;
+            border-bottom: 2px dashed #FFCC80;
+            color: #FF9800;
             text-align: center;
         }
 
         .modal-list {
             padding-left: 20px;
             margin-bottom: 20px;
-            line-height: 1.5;
-            font-size: 0.9rem;
+            line-height: 1.6;
+            font-size: 0.95rem;
+            font-weight: 700;
         }
 
         .modal-list li {
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
         .highlight {
             color: #FF5722;
-            font-weight: bold;
+            font-weight: 800;
         }
 
         .btn-close {
             display: block;
             margin: 0 auto;
-            width: 120px;
-            height: 38px;
-            line-height: 38px;
+            width: 130px;
+            height: 42px;
+            line-height: 42px;
             background-color: #757575;
             color: white;
             border: none;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            font-weight: bold;
+            border-radius: 21px;
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 800;
             cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
         }
 
         .btn-close:hover {
             opacity: 0.85;
+            transform: translateY(-2px);
         }
 
-        /* 画面の高さが低いスマホ横持ち時のコンパクト調整 */
         @media screen and (max-height: 500px) {
             .game-container {
                 padding: 15px 25px;
             }
-            h1 {
-                font-size: 1.3rem;
-                margin-bottom: 4px;
-            }
-            .subtitle {
-                font-size: 0.8rem;
-                margin-bottom: 15px;
-            }
-            .btn {
-                height: 38px;
-                line-height: 38px;
-                font-size: 0.95rem;
-            }
-            .button-group {
-                gap: 8px;
-            }
+            h1 { font-size: 1.3rem; margin-bottom: 4px; }
+            .subtitle { font-size: 0.8rem; margin-bottom: 12px; }
+            .btn { height: 40px; line-height: 40px; font-size: 0.95rem; }
+            .button-group { gap: 8px; }
         }
     </style>
 </head>
@@ -385,22 +375,18 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(function() {
-            // スタートボタン -> 本編画面へ遷移
             $('#btn_start').on('click', function() {
                 window.location.href = './app/views/front/game.html';
             });
 
-            // チュートリアルボタン -> チュートリアル画面へ遷移
             $('#btn_tutorial').on('click', function() {
                 window.location.href = './app/views/front/tutorial.html';
             });
 
-            // あそびかたボタン -> モーダル表示
             $('#btn_howTo').on('click', function() {
                 $('#modal').addClass('active');
             });
 
-            // モーダル閉じる
             $('#btn_close, #modal').on('click', function(e) {
                 if (e.target === this) {
                     $('#modal').removeClass('active');
