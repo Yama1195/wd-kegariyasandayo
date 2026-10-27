@@ -9,7 +9,6 @@ $(function()
 //------------------------------------------------------------------------------
 //  画像の準備
 //------------------------------------------------------------------------------
-// プレイヤー画像（通常時 ＆ 毛刈り攻撃時）
 const playerImg = new Image();
 playerImg.src = '../../assets/img/player1.png';
 playerImg.onload = function() { 
@@ -22,7 +21,6 @@ playerAttackImg.onload = function() {
     if (typeof ctx !== 'undefined' && ctx && current_state !== GAME_STATE.PLAYING) draw(); 
 };
 
-// 敵キャラ画像（タイプ別に管理）
 const enemyImages = {};
 for (let i = 0; i < 5; i++) {
     enemyImages[i] = new Image();
@@ -51,7 +49,6 @@ sound.damage.volume = 0.7;
 //------------------------------------------------------------------------------
 let canvas, ctx, width, height;
 
-// ゲームの状態管理
 const GAME_STATE = {
     TITLE: 0,
     PLAYING: 1,
@@ -59,7 +56,6 @@ const GAME_STATE = {
 };
 let current_state = GAME_STATE.TITLE;
 
-// 雲の配置・個別管理用オブジェクト
 let clouds = [
     { x: 100,  y: 80,  s: 0.9, speed: 0.8 },
     { x: 450,  y: 140, s: 0.6, speed: 0.5 },
@@ -67,7 +63,7 @@ let clouds = [
     { x: 1150, y: 160, s: 0.7, speed: 0.6 }
 ];
 
-// --- プレイヤー ---
+// --- プレイヤー（基準値：PC用大きめサイズ） ---
 let player = {
     x: 0,
     y: 0,
@@ -80,7 +76,6 @@ let player = {
     invincible_timer: 0
 };
 
-// --- 毛刈り ---
 let shear_state = {
     is_active: false,
     timer: 0,
@@ -90,12 +85,11 @@ let shear_state = {
     effect_timer: 0
 };
 
-// --- 演出 ---
 let hit_stop_timer = 0;
 let shake_timer = 0;
 let shake_intensity = 0;
 
-// --- 敵 ---
+// --- 敵（基準値：PC用大きめサイズ） ---
 let enemy = {
     x: 0,
     y: 0,
@@ -112,18 +106,14 @@ let enemy = {
 };
 
 let score = 0;
-
-// コンボ変数
 let combo = 0;
 let max_combo = 0;
 
-// ゲームオーバー画面のボタン配置情報
 let buttons = {
     retry: { x: 0, y: 0, w: 180, h: 50 },
     top: { x: 0, y: 0, w: 180, h: 50 }
 };
 
-// 敵タイプの名称定義 (5種類)
 const ENEMY_TYPE_NAMES = [
     "通常",
     "上下揺れ",
@@ -195,8 +185,29 @@ function resize_canvas()
     width = canvas.width;
     height = canvas.height;
 
-    player.x = width - 240;
-    player.y = height * 0.65;
+    // ★ 画面幅が 1024px以下のタブレット・スマホサイズの場合のみ、キャラクターを小さく自動調整
+    if (width <= 1024) {
+        player.width = 220;
+        player.height = 220;
+        player.radius = 70;
+        player.x = width - 160;
+        player.y = height * 0.70;
+
+        enemy.width = 160;
+        enemy.height = 160;
+        enemy.radius = 60;
+    } else {
+        // PC用の初期サイズ
+        player.width = 320;
+        player.height = 320;
+        player.radius = 100;
+        player.x = width - 240;
+        player.y = height * 0.65;
+
+        enemy.width = 240;
+        enemy.height = 240;
+        enemy.radius = 90;
+    }
 
     buttons.retry.x = width / 2 - 200;
     buttons.retry.y = height / 2 + 60;
@@ -303,13 +314,12 @@ function trigger_shear()
 function reset_enemy()
 {
     enemy.x = -enemy.radius * 2;
-    enemy.base_y = (height || 600) * 0.70;
+    enemy.base_y = (width <= 1024) ? (height || 600) * 0.72 : (height || 600) * 0.70;
     enemy.y = enemy.base_y;
     enemy.is_alive = true;
     enemy.timer = 0;
     enemy.angle = 0;
 
-    // 5種類の敵タイプからランダム選出
     enemy.type = Math.floor(Math.random() * 5);
 
     let speed_bonus = Math.min(score * 0.3, 6);
@@ -456,7 +466,8 @@ function update()
 
             case 1: // 上下揺れ
                 enemy.x += enemy.speed;
-                enemy.y = enemy.base_y + Math.sin(enemy.timer * 0.1) * 60;
+                let wave_amplitude = (width <= 1024) ? 45 : 60;
+                enemy.y = enemy.base_y + Math.sin(enemy.timer * 0.1) * wave_amplitude;
                 break;
 
             case 4: // 回転突撃
@@ -465,13 +476,17 @@ function update()
                 break;
         }
 
-        // --- 当たり判定の計算 ---
+        // --- 当たり判定の計算（サイズに応じて自動調整） ---
         let dist_shear = Math.hypot(player.x - enemy.x, player.y - enemy.y);
-        let player_damage_x = player.x + 40;
+        let player_damage_offset = (width <= 1024) ? 25 : 40;
+        let player_damage_x = player.x + player_damage_offset;
         let dist_damage = Math.hypot(player_damage_x - enemy.x, player.y - enemy.y);
 
+        let shear_extra = (width <= 1024) ? 30 : 40;
+        let damage_sub = (width <= 1024) ? 15 : 20;
+
         // 毛刈り（パリィ）判定
-        if (shear_state.is_active && dist_shear < player.radius + enemy.radius + 40) {
+        if (shear_state.is_active && dist_shear < player.radius + enemy.radius + shear_extra) {
             enemy.is_alive = false;
             score++;
             combo++;
@@ -489,7 +504,7 @@ function update()
             setTimeout(reset_enemy, 800);
         } 
         // 被ダメージ判定
-        else if (dist_damage < player.radius + enemy.radius - 20) {
+        else if (dist_damage < player.radius + enemy.radius - damage_sub) {
             enemy.is_alive = false;
             player.hp--;
             combo = 0;
@@ -587,14 +602,19 @@ function draw()
 
     // 5. 毛刈り成功テキスト ＆ 連続毛刈り数表示
     if (shear_state.effect_timer > 0) {
+        let font_size_main = (width <= 1024) ? "36px" : "44px";
+        let font_size_sub = (width <= 1024) ? "28px" : "36px";
+        let offset_main = (width <= 1024) ? 130 : 180;
+        let offset_sub = (width <= 1024) ? 170 : 230;
+
         ctx.fillStyle = "#FFD700";
-        ctx.font = "bold 44px sans-serif";
-        ctx.fillText("毛刈り成功!!", player.x - 80, player.y - 180);
+        ctx.font = "bold " + font_size_main + " sans-serif";
+        ctx.fillText("毛刈り成功!!", player.x - 70, player.y - offset_main);
 
         if (combo >= 2) {
             ctx.fillStyle = "#FF5722";
-            ctx.font = "bold 36px sans-serif";
-            ctx.fillText("連続毛刈り " + combo + "回!", player.x - 70, player.y - 230);
+            ctx.font = "bold " + font_size_sub + " sans-serif";
+            ctx.fillText("連続毛刈り " + combo + "回!", player.x - 60, player.y - offset_sub);
         }
     }
 

@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>チュートリアル - 毛刈り屋さんだよ</title>
     <style>
         * {
@@ -18,6 +18,7 @@
             font-family: sans-serif;
             user-select: none;
             background-color: #000;
+            touch-action: none;
         }
 
         #game_container {
@@ -33,87 +34,128 @@
             height: 100%;
         }
 
-        /* 視認性を高め、ボタンを内蔵した指示ボード */
+        /* --- 画面回転アラート（スマホの縦向き時のみ表示） --- */
+        #rotate_warning {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 99999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            font-family: sans-serif;
+        }
+
+        #rotate_warning .warning_icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: rotate_anim 1.5s infinite ease-in-out;
+        }
+
+        #rotate_warning .warning_text {
+            font-size: 1.2rem;
+            font-weight: bold;
+            line-height: 1.6;
+        }
+
+        @media screen and (max-width: 1024px) and (orientation: portrait) {
+            #rotate_warning {
+                display: flex !important;
+            }
+        }
+
+        @keyframes rotate_anim {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(90deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        /* --- 指示ボード（ポップアップ） --- */
         #instruction_card {
             position: absolute;
-            top: 25px;
+            top: 75px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(255, 255, 255, 0.96);
-            padding: 22px 35px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 12px 20px;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
             text-align: center;
             width: 92%;
-            max-width: 720px;
+            max-width: 650px;
             z-index: 10;
             backdrop-filter: blur(6px);
             border: 3px solid #FF9800;
         }
 
         #step_title {
-            font-size: 1.15rem;
+            font-size: 0.95rem;
             color: #FF9800;
             font-weight: bold;
-            margin-bottom: 8px;
+            margin-bottom: 3px;
             letter-spacing: 1px;
         }
 
         #step_desc {
-            font-size: 1.25rem;
+            font-size: 1rem;
             color: #333;
             font-weight: bold;
-            line-height: 1.45;
-            margin-bottom: 15px;
+            line-height: 1.4;
+            margin-bottom: 8px;
         }
 
-        /* ボード内コンテナ（ボタン配置用） */
         #card_buttons {
             display: flex;
             justify-content: center;
-            gap: 15px;
-            min-height: 48px;
+            gap: 10px;
+            min-height: 36px;
         }
 
-        /* 共通UIボタン */
         .ui_btn {
-            padding: 10px 24px;
+            padding: 6px 18px;
             border: none;
-            border-radius: 25px;
-            font-size: 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
             font-weight: bold;
             color: #fff;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
             transition: all 0.2s ease;
         }
 
         .ui_btn:hover {
             transform: translateY(-2px) scale(1.03);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 5px 14px rgba(0, 0, 0, 0.25);
         }
 
-        /* 左上：タイトルへ戻る（独立配置） */
+        /* 左上：タイトルへ戻るボタン */
         #btn_back {
             position: absolute;
-            top: 25px;
-            left: 25px;
+            top: 15px;
+            left: 15px;
             background-color: rgba(117, 117, 117, 0.85);
             z-index: 10;
+            padding: 6px 14px;
+            font-size: 0.8rem;
         }
 
-        /* ボード内：次へ進むボタン */
         #btn_next {
             background-color: #FF9800;
             display: none;
             animation: pulse 1.5s infinite;
         }
 
-        /* ボード内：本番ゲームへボタン */
         #btn_start_game {
             background-color: #4CAF50;
-            font-size: 1.1rem;
-            padding: 12px 30px;
+            font-size: 0.95rem;
+            padding: 8px 22px;
             display: none;
             animation: pulse 1.5s infinite;
         }
@@ -127,11 +169,20 @@
 </head>
 <body>
 
+    <!-- スマホ縦向き時の回転アラート -->
+    <div id="rotate_warning">
+        <div class="warning_icon">📱🔄</div>
+        <div class="warning_text">
+            画面を横向きにして遊んでね！<br>
+            <span style="font-size: 0.9rem; color: #FF9800; font-weight: normal;">(スマートフォンを横に回転させてください)</span>
+        </div>
+    </div>
+
     <div id="game_container">
         <!-- 左上に戻るボタン -->
         <button id="btn_back" class="ui_btn">タイトルへ戻る</button>
 
-        <!-- 視認性を強化し、ボタンを内蔵した指示ボード -->
+        <!-- 指示ボード -->
         <div id="instruction_card">
             <div id="step_title">STEP 1 / 5</div>
             <div id="step_desc">読み込み中...</div>
@@ -151,7 +202,6 @@
             const ctx = canvas.getContext('2d');
             let width, height;
 
-            // --- 画像 ---
             const playerImg = new Image();
             playerImg.src = '../../assets/img/player1.png';
 
@@ -161,7 +211,6 @@
             const enemyImg = new Image();
             enemyImg.src = '../../assets/img/enemy1.png';
 
-            // --- 音声 ---
             const sound = {
                 parry: new Audio('../../assets/sound/sound_parry.mp3'),
                 damage: new Audio('../../assets/sound/sound_damage.mp3')
@@ -177,7 +226,6 @@
                 } catch(e) {}
             }
 
-            // --- 雲 ---
             let clouds = [
                 { x: 100,  y: 80,  s: 0.9, speed: 0.8 },
                 { x: 450,  y: 140, s: 0.6, speed: 0.5 },
@@ -185,19 +233,15 @@
                 { x: 1150, y: 160, s: 0.7, speed: 0.6 }
             ];
 
-            // --- プレイヤー ---
             let player = {
                 x: 0,
                 y: 0,
                 width: 320,
                 height: 320,
                 radius: 100,
-                max_hp: 3,
-                hp: 3,
                 invincible_timer: 0
             };
 
-            // --- アクション ---
             let shear_state = {
                 is_active: false,
                 timer: 0,
@@ -205,7 +249,6 @@
                 effect_timer: 0
             };
 
-            // --- 敵 ---
             let enemy = {
                 x: 0,
                 y: 0,
@@ -234,15 +277,34 @@
                 width = canvas.width;
                 height = canvas.height;
 
-                player.x = width - 240;
-                player.y = height * 0.65;
-                enemy.base_y = height * 0.70;
+                if (width <= 1024) {
+                    player.width = 220;
+                    player.height = 220;
+                    player.radius = 70;
+                    player.x = width - 160;
+                    player.y = height * 0.72;
+
+                    enemy.width = 160;
+                    enemy.height = 160;
+                    enemy.radius = 60;
+                    enemy.base_y = height * 0.74;
+                } else {
+                    player.width = 320;
+                    player.height = 320;
+                    player.radius = 100;
+                    player.x = width - 240;
+                    player.y = height * 0.65;
+
+                    enemy.width = 240;
+                    enemy.height = 240;
+                    enemy.radius = 90;
+                    enemy.base_y = height * 0.70;
+                }
                 enemy.y = enemy.base_y;
             }
             resize_canvas();
             $(window).on('resize', resize_canvas);
 
-            // --- 入力判定 ---
             $(window).on('keydown', function(e) {
                 if (e.code === 'Space') {
                     e.preventDefault();
@@ -261,7 +323,6 @@
                 shear_state.is_active = true;
                 shear_state.timer = shear_state.duration;
 
-                // --- STEP 1 ---
                 if (currentStep === 1 && !stepCleared) {
                     stepProgress++;
                     if (stepProgress < 3) {
@@ -272,10 +333,11 @@
                         $('#btn_next').fadeIn();
                     }
                 }
-                // --- STEP 2, 3, 5 ---
                 else if (enemy.is_alive && !enemy.is_sheared) {
                     let dist_shear = Math.hypot(player.x - enemy.x, player.y - enemy.y);
-                    if (dist_shear < player.radius + enemy.radius + 40) {
+                    let shear_extra = (width <= 1024) ? 30 : 40;
+
+                    if (dist_shear < player.radius + enemy.radius + shear_extra) {
                         enemy.is_sheared = true;
                         play_se(sound.parry);
                         shear_state.effect_timer = 20;
@@ -329,6 +391,7 @@
 
             function spawn_enemy() {
                 enemy.x = -enemy.radius * 2;
+                enemy.base_y = (width <= 1024) ? height * 0.74 : height * 0.70;
                 enemy.y = enemy.base_y;
                 enemy.is_alive = true;
                 enemy.is_sheared = false;
@@ -340,7 +403,6 @@
                 stepCleared = false;
                 stepProgress = 0;
                 combo = 0;
-                player.hp = 3;
                 enemy.is_alive = false;
                 $('#btn_next').hide();
                 $('#btn_start_game').hide();
@@ -449,9 +511,11 @@
                             enemy.x += enemy.speed;
 
                             if (currentStep === 4 && !stepCleared) {
-                                let dist_damage = Math.hypot((player.x + 40) - enemy.x, player.y - enemy.y);
-                                if (dist_damage < player.radius + enemy.radius - 20) {
-                                    player.hp--;
+                                let damage_offset = (width <= 1024) ? 25 : 40;
+                                let damage_sub = (width <= 1024) ? 15 : 20;
+                                let dist_damage = Math.hypot((player.x + damage_offset) - enemy.x, player.y - enemy.y);
+
+                                if (dist_damage < player.radius + enemy.radius - damage_sub) {
                                     enemy.is_alive = false;
                                     play_se(sound.damage);
                                     shake_timer = 15;
@@ -459,7 +523,7 @@
                                     player.invincible_timer = 30;
                                     stepCleared = true;
 
-                                    $('#step_desc').text('ハートが1つ減って無敵状態(点滅)になるよ！');
+                                    $('#step_desc').text('敵にぶつかるとダメージ演出が発生するよ！（※チュートリアルはミスしてもOK）');
                                     $('#btn_next').fadeIn();
                                 }
                             }
@@ -532,31 +596,29 @@
                     ctx.setLineDash([8, 8]);
                     ctx.lineWidth = 4;
                     ctx.beginPath();
-                    ctx.arc(player.x, player.y, player.radius + enemy.radius + 40, 0, Math.PI * 2);
+                    let guide_extra = (width <= 1024) ? 30 : 40;
+                    ctx.arc(player.x, player.y, player.radius + enemy.radius + guide_extra, 0, Math.PI * 2);
                     ctx.fill();
                     ctx.stroke();
                     ctx.setLineDash([]);
                 }
 
                 if (shear_state.effect_timer > 0) {
+                    let font_size_main = (width <= 1024) ? "32px" : "44px";
+                    let font_size_sub = (width <= 1024) ? "24px" : "36px";
+                    let offset_main = (width <= 1024) ? 110 : 180;
+                    let offset_sub = (width <= 1024) ? 140 : 230;
+
                     ctx.fillStyle = "#FFD700";
-                    ctx.font = "bold 44px sans-serif";
-                    ctx.fillText("毛刈り成功!!", player.x - 80, player.y - 180);
+                    ctx.font = "bold " + font_size_main + " sans-serif";
+                    ctx.fillText("毛刈り成功!!", player.x - 70, player.y - offset_main);
 
                     if (combo >= 2) {
                         ctx.fillStyle = "#FF5722";
-                        ctx.font = "bold 36px sans-serif";
-                        ctx.fillText("連続毛刈り " + combo + "回!", player.x - 70, player.y - 230);
+                        ctx.font = "bold " + font_size_sub + " sans-serif";
+                        ctx.fillText("連続毛刈り " + combo + "回!", player.x - 60, player.y - offset_sub);
                     }
                 }
-
-                let hp_hearts = "";
-                for (let i = 0; i < player.max_hp; i++) {
-                    hp_hearts += (i < player.hp) ? "❤️" : "🖤";
-                }
-                ctx.fillStyle = "#333";
-                ctx.font = "bold 22px sans-serif";
-                ctx.fillText("たいりょく: " + hp_hearts, 25, 140);
 
                 ctx.restore();
                 requestAnimationFrame(game_loop);
