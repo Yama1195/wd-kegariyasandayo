@@ -4,7 +4,7 @@
 <head>
  <title>毛刈り屋さんだよ</title>
  <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
  <!-- CSS読み込み -->
  <link rel="stylesheet" href="../../assets/css/front/front.css">
@@ -14,6 +14,60 @@
  <script src="../../assets/js/front/front_game.js"></script>
 
  <style>
+  /* スマホのスクロールやズームを防止 */
+  body, html {
+   width: 100%;
+   height: 100%;
+   overflow: hidden;
+   touch-action: none;
+   margin: 0;
+   padding: 0;
+  }
+
+  /* --- 画面回転アラート（スマホの縦向き時のみ表示） --- */
+  #rotate_warning {
+   display: none;
+   position: fixed;
+   top: 0;
+   left: 0;
+   width: 100vw;
+   height: 100vh;
+   background-color: rgba(0, 0, 0, 0.9);
+   z-index: 99999;
+   flex-direction: column;
+   justify-content: center;
+   align-items: center;
+   color: #fff;
+   text-align: center;
+   padding: 20px;
+   font-family: sans-serif;
+  }
+
+  #rotate_warning .warning_icon {
+   font-size: 4rem;
+   margin-bottom: 20px;
+   animation: rotate_anim 1.5s infinite ease-in-out;
+  }
+
+  #rotate_warning .warning_text {
+   font-size: 1.2rem;
+   font-weight: bold;
+   line-height: 1.6;
+  }
+
+  /* スマホかつ縦向きの場合のみ表示 */
+  @media screen and (max-width: 1024px) and (orientation: portrait) {
+   #rotate_warning {
+    display: flex !important;
+   }
+  }
+
+  @keyframes rotate_anim {
+   0% { transform: rotate(0deg); }
+   50% { transform: rotate(90deg); }
+   100% { transform: rotate(0deg); }
+  }
+
   /* スタート前のパネル配置スタイル */
   #start_panel {
    position: absolute !important;
@@ -73,6 +127,15 @@
 
 <body>
 
+ <!-- スマホ縦向き時の回転アラート -->
+ <div id="rotate_warning">
+  <div class="warning_icon">📱🔄</div>
+  <div class="warning_text">
+   画面を横向きにして遊んでね！<br>
+   <span style="font-size: 0.9rem; color: #FF9800; font-weight: normal;">(スマートフォンを横に回転させてください)</span>
+  </div>
+ </div>
+
  <!-- 開始ボタンエリア -->
  <div id="start_panel">
   <button id="btn_start" class="custom_start_btn">ゲームスタート</button> 
@@ -84,7 +147,7 @@
 
  <script>
   $(function() {
-    // タイトルへ戻るボタンのイベント（off('click')に消されないよう委譲で設定）
+    // タイトルへ戻るボタンのイベント（委譲で設定）
     $(document).on('click', '#btn_back_title', function(e) {
       e.stopPropagation();
       window.location.href = '../../../index.html';
