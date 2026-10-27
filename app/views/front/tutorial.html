@@ -40,7 +40,7 @@
             height: 100%;
         }
 
-        /* --- 絵本風の内側フレーム枠（世界観統一） --- */
+        /* --- 絵本風の内側フレーム枠 --- */
         body::after {
             content: '';
             position: fixed;
@@ -137,7 +137,6 @@
             min-height: 40px;
         }
 
-        /* 共通UIボタン（ぷにっと沈み込むアニメーション） */
         .ui_btn {
             padding: 8px 22px;
             border: none;
@@ -160,7 +159,6 @@
             transform: translateY(1px) scale(0.97);
         }
 
-        /* 左上：タイトルへ戻るボタン */
         #btn_back {
             position: absolute;
             top: 15px;
@@ -222,12 +220,22 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+        // フルスクリーン化ヘルパー
+        function requestFullScreen() {
+            let elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen().catch(() => {});
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            }
+        }
+
         $(function() {
             const canvas = document.getElementById('game_canvas');
             const ctx = canvas.getContext('2d');
             let width, height;
-            let global_time = 0; // アニメーション用タイマー
-            let particles = [];  // もこもこ毛玉パーティクル用
+            let global_time = 0;
+            let particles = [];
 
             const playerImg = new Image();
             playerImg.src = '../../assets/img/player1.png';
@@ -343,7 +351,6 @@
                 trigger_shear();
             });
 
-            // 成功時のもこもこ毛玉パーティクル生成
             function create_wool_particles(x, y) {
                 let count = 15;
                 for (let i = 0; i < count; i++) {
@@ -391,9 +398,7 @@
                         shake_timer = 12;
                         shake_intensity = 15;
 
-                        // パーティクル発生
                         create_wool_particles(enemy.x, enemy.y);
-
                         combo++;
 
                         if (currentStep === 2 && !stepCleared) {
@@ -533,7 +538,6 @@
                     }
                 }
 
-                // お花装飾
                 let flower_positions = [0.2, 0.5, 0.8];
                 let flower_colors = ["#FF7043", "#EC407A", "#FFCA28"];
                 let wind = Math.sin(global_time * 0.05) * 4;
@@ -572,7 +576,6 @@
                         if (c.x < -150) c.x += width + 300;
                     }
 
-                    // パーティクル更新
                     for (let i = particles.length - 1; i >= 0; i--) {
                         let p = particles[i];
                         p.x += p.vx;
@@ -651,7 +654,6 @@
                 let ground_y = player.y + player.radius;
                 drawGrassland(ctx, width, height, ground_y);
 
-                // プレイヤー描画（ぷにぷにモーション）
                 if (player.invincible_timer % 4 < 2) {
                     let currentDrawImg = shear_state.is_active ? playerAttackImg : playerImg;
                     if (currentDrawImg.complete && currentDrawImg.naturalWidth !== 0) {
@@ -669,7 +671,6 @@
                     }
                 }
 
-                // 敵描画
                 if (enemy.is_alive) {
                     if (enemyImg.complete && enemyImg.naturalWidth !== 0) {
                         ctx.save();
@@ -687,7 +688,6 @@
                     }
                 }
 
-                // パーティクル描画
                 for (let p of particles) {
                     ctx.save();
                     ctx.globalAlpha = Math.max(0, p.alpha);
@@ -711,7 +711,6 @@
                     ctx.setLineDash([]);
                 }
 
-                // 毛刈り成功ポップテキスト（弾むアニメーション）
                 if (shear_state.effect_timer > 0) {
                     let progress = (22 - shear_state.effect_timer) / 22;
                     let scale = (progress < 0.3) ? (1.0 + progress * 1.5) : (1.45 - (progress - 0.3) * 0.5);
@@ -762,9 +761,13 @@
                 window.location.href = '../../../index.html';
             });
 
+            // 本番ゲームへ進むボタン（フルスクリーン要求を追加）
             $('#btn_start_game').on('click', function(e) {
                 e.stopPropagation();
-                window.location.href = './game.html';
+                requestFullScreen();
+                setTimeout(function() {
+                    window.location.href = './game.html';
+                }, 150);
             });
         });
     </script>

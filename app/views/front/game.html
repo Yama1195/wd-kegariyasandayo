@@ -19,7 +19,6 @@
  <script src="../../assets/js/front/front_game.js"></script>
 
  <style>
-  /* スマホのスクロールやズームを防止 */
   body, html {
    width: 100%;
    height: 100%;
@@ -30,14 +29,13 @@
    font-family: 'M PLUS Rounded 1c', sans-serif;
   }
 
-  /* キャンバスを全画面フィットさせる */
   #game_canvas {
    display: block;
    width: 100vw;
    height: 100vh;
   }
 
-  /* --- 絵本風の内側フレーム枠（世界観統一） --- */
+  /* --- 絵本風の内側フレーム枠 --- */
   body::after {
    content: '';
    position: fixed;
@@ -93,7 +91,6 @@
    100% { transform: rotate(0deg); }
   }
 
-  /* スタート前のパネル配置スタイル */
   #start_panel {
    position: absolute !important;
    top: 0 !important;
@@ -118,7 +115,6 @@
    display: none !important;
   }
 
-  /* ボタン共通スタイル（ぷにっと押し込めるアニメーション付き） */
   .custom_start_btn {
    position: static !important;
    transform: none !important;
@@ -176,7 +172,23 @@
  <canvas id="game_canvas"></canvas>
 
  <script>
+  // フルスクリーン化ヘルパー
+  function requestFullScreen() {
+      let elem = document.documentElement;
+      if (elem.requestFullscreen) {
+          elem.requestFullscreen().catch(() => {});
+      } else if (elem.webkitRequestFullscreen) {
+          elem.webkitRequestFullscreen();
+      }
+  }
+
   $(function() {
+   // ゲームスタートボタン押下時にフルスクリーン要求
+   $('#btn_start').on('click', function(e) {
+       requestFullScreen();
+   });
+
+   // タイトルへ戻るボタンのイベント
    $(document).on('click', '#btn_back_title', function(e) {
      e.stopPropagation();
      window.location.href = '../../../index.html';

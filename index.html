@@ -194,7 +194,6 @@
             align-items: center;
         }
 
-        /* ボタン共通（ぷにっと沈み込むアニメーション） */
         .btn {
             width: 230px;
             height: 48px;
@@ -350,7 +349,7 @@
     <!-- 背景装飾：草原 -->
     <div class="grassland"></div>
 
-    <!-- 背景装飾：PNG画像アセット（ふわふわ浮遊アニメーション付き） -->
+    <!-- 背景装飾：PNG画像アセット -->
     <img src="./app/assets/img/player1_attack.png" class="scattered-img rot-1" style="top: 10%; left: 12%; width: 170px;" alt="player">
     <img src="./app/assets/img/enemy1.png" class="scattered-img rot-2" style="top: 8%; right: 12%; width: 160px;" alt="enemy">
     <img src="./app/assets/img/player1_attack.png" class="scattered-img rot-3" style="bottom: 10%; left: 14%; width: 180px;" alt="player">
@@ -395,13 +394,31 @@
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+        // フルスクリーンを有効化するヘルパー関数
+        function requestFullScreen() {
+            let elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen().catch(() => {});
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            }
+        }
+
         $(function() {
+            // スタートボタン -> フルスクリーン要求 ＋ 本編画面へ遷移
             $('#btn_start').on('click', function() {
-                window.location.href = './app/views/front/game.html';
+                requestFullScreen();
+                setTimeout(function() {
+                    window.location.href = './app/views/front/game.html';
+                }, 150); // フルスクリーン処理の実行を少しだけ待ってから画面遷移
             });
 
+            // チュートリアルボタン -> フルスクリーン要求 ＋ チュートリアル画面へ遷移
             $('#btn_tutorial').on('click', function() {
-                window.location.href = './app/views/front/tutorial.html';
+                requestFullScreen();
+                setTimeout(function() {
+                    window.location.href = './app/views/front/tutorial.html';
+                }, 150);
             });
 
             $('#btn_howTo').on('click', function() {
