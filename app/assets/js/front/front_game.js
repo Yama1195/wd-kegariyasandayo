@@ -56,12 +56,17 @@ const GAME_STATE = {
 };
 let current_state = GAME_STATE.TITLE;
 
+let global_time = 0; // アニメーション用タイマー
+
 let clouds = [
     { x: 100,  y: 80,  s: 0.9, speed: 0.8 },
     { x: 450,  y: 140, s: 0.6, speed: 0.5 },
     { x: 800,  y: 90,  s: 1.1, speed: 1.0 },
     { x: 1150, y: 160, s: 0.7, speed: 0.6 }
 ];
+
+// --- パーティクル（毛玉・キラキラ演出用） ---
+let particles = [];
 
 // --- プレイヤー（基準値：PC用大きめサイズ） ---
 let player = {
@@ -115,11 +120,11 @@ let buttons = {
 };
 
 const ENEMY_TYPE_NAMES = [
-    "通常",
-    "上下揺れ",
-    "スピードUP",
-    "スロー",
-    "回転突撃"
+    "通常羊",
+    "ふわふわ羊",
+    "ダッシュ羊",
+    "のんびり羊",
+    "くるくる羊"
 ];
 
 //------------------------------------------------------------------------------
@@ -185,7 +190,6 @@ function resize_canvas()
     width = canvas.width;
     height = canvas.height;
 
-    // ★ 画面幅が 1024px以下のタブレット・スマホサイズの場合のみ、キャラクターを小さく自動調整
     if (width <= 1024) {
         player.width = 220;
         player.height = 220;
@@ -197,7 +201,6 @@ function resize_canvas()
         enemy.height = 160;
         enemy.radius = 60;
     } else {
-        // PC用の初期サイズ
         player.width = 320;
         player.height = 320;
         player.radius = 100;
@@ -220,10 +223,6 @@ function resize_canvas()
     }
 }
 
-//------------------------------------------------------------------------------
-//  画面遷移コントロール
-//------------------------------------------------------------------------------
-
 function game_start()
 {
     $('#btn_start').addClass('hide');
@@ -245,6 +244,7 @@ function prepare_retry()
     shake_timer = 0;
     shear_state.is_active = false;
     shear_state.cooldown = 0;
+    particles = [];
     reset_enemy();
 
     $('#btn_start').removeClass('hide');
@@ -266,6 +266,7 @@ function restart_game()
     shake_timer = 0;
     shear_state.is_active = false;
     shear_state.cooldown = 0;
+    particles = [];
     reset_enemy();
 
     try {
@@ -311,6 +312,26 @@ function trigger_shear()
     }
 }
 
+// --- 毛刈り成功時の爆発パーティクル生成 ---
+function create_wool_particles(x, y) {
+    let count = 15;
+    for (let i = 0; i < count; i++) {
+        let angle = Math.random() * Math.PI * 2;
+        let speed = Math.random() * 8 + 3;
+        particles.push({
+            x: x,
+            y: y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed - 2,
+            radius: Math.random() * 12 + 8,
+            color: (Math.random() < 0.7) ? "#FFFFFF" : "#FFD700",
+            alpha: 1.0,
+            life: 30 + Math.random() * 15,
+            max_life: 45
+        });
+    }
+}
+
 function reset_enemy()
 {
     enemy.x = -enemy.radius * 2;
@@ -327,23 +348,18 @@ function reset_enemy()
     switch (enemy.type) {
         case 0: // 通常
             enemy.speed = (6 + Math.random() * 2) + speed_bonus;
-            enemy.color = "#E91E63";
             break;
         case 1: // 上下
             enemy.speed = 5.5 + speed_bonus;
-            enemy.color = "#9C27B0";
             break;
         case 2: // スピードUP
             enemy.speed = 13 + speed_bonus;
-            enemy.color = "#FFEB3B";
             break;
         case 3: // スロー
             enemy.speed = 3.5 + Math.min(score * 0.1, 2);
-            enemy.color = "#00BCD4";
             break;
         case 4: // 回転
             enemy.speed = 7 + speed_bonus;
-            enemy.color = "#4CAF50";
             break;
     }
 }
@@ -373,7 +389,7 @@ function drawCloud(ctx, x, y, size = 1) {
 }
 
 //------------------------------------------------------------------------------
-//  パーツ描画パーツ：いらすとや風の絵本調草原
+//  パーツ描画パーツ：絵本調草原＆お花
 //------------------------------------------------------------------------------
 function drawGrassland(ctx, width, height, ground_y) {
     ctx.fillStyle = "#8BC34A";
@@ -385,6 +401,7 @@ function drawGrassland(ctx, width, height, ground_y) {
     ctx.lineTo(0, height);
     ctx.fill();
 
+    // 草むら模様
     ctx.fillStyle = "#AED581";
     let rows = 4;
     let cols = Math.floor(width / 45);
@@ -404,6 +421,36 @@ function drawGrassland(ctx, width, height, ground_y) {
             }
         }
     }
+
+    // 風に揺れる可愛いお花（装飾演出）
+    let flower_positions = [0.15, 0.4, 0.65, 0.88];
+    let flower_colors = ["#FF7043", "#EC407A", "#FFCA28", "#AB47BC"];
+    let wind = Math.sin(global_time * 0.05) * 4;
+
+    for (let i = 0; i < flower_positions.length; i++) {
+        let fx = width * flower_positions[i];
+        let fy = ground_y + 25 + (i % 2) * 15;
+
+        // 花の茎
+        ctx.strokeStyle = "#689F38";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(fx, fy + 15);
+        ctx.quadraticCurveTo(fx + wind, fy, fx + wind, fy - 10);
+        ctx.stroke();
+
+        // 花びら
+        ctx.fillStyle = flower_colors[i];
+        ctx.beginPath();
+        ctx.arc(fx + wind, fy - 10, 7, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 花芯
+        ctx.fillStyle = "#FFF";
+        ctx.beginPath();
+        ctx.arc(fx + wind, fy - 10, 3, 0, Math.PI * 2);
+        ctx.fill();
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -414,6 +461,8 @@ function game_loop()
     if (current_state !== GAME_STATE.PLAYING && current_state !== GAME_STATE.GAMEOVER) return;
 
     try {
+        global_time++;
+
         if (current_state === GAME_STATE.PLAYING) {
             if (hit_stop_timer > 0) {
                 hit_stop_timer--;
@@ -441,6 +490,18 @@ function update()
         c.x -= c.speed;
         if (c.x < -150) {
             c.x += (width || 800) + 300;
+        }
+    }
+
+    // パーティクルの物理計算
+    for (let i = particles.length - 1; i >= 0; i--) {
+        let p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.3; // 重力
+        p.alpha -= 1.0 / p.life;
+        if (p.alpha <= 0) {
+            particles.splice(i, 1);
         }
     }
 
@@ -476,7 +537,6 @@ function update()
                 break;
         }
 
-        // --- 当たり判定の計算（サイズに応じて自動調整） ---
         let dist_shear = Math.hypot(player.x - enemy.x, player.y - enemy.y);
         let player_damage_offset = (width <= 1024) ? 25 : 40;
         let player_damage_x = player.x + player_damage_offset;
@@ -494,7 +554,10 @@ function update()
                 max_combo = combo;
             }
 
-            shear_state.effect_timer = 20;
+            shear_state.effect_timer = 22;
+
+            // 毛刈り成功パーティクル生成！
+            create_wool_particles(enemy.x, enemy.y);
 
             play_se(sound.parry);
             hit_stop_timer = 6;
@@ -556,33 +619,41 @@ function draw()
         drawCloud(ctx, c.x, c.y, c.s);
     }
 
-    // 2. 地面
+    // 2. 地面とお花
     let ground_y = player.y + player.radius;
     drawGrassland(ctx, width || 800, height || 600, ground_y);
 
-    // 3. プレイヤー描画
+    // 3. プレイヤー描画（生きているようなぷにぷに弾むモーション付き）
     if (player.invincible_timer % 4 < 2) {
         let currentDrawImg = (current_state === GAME_STATE.PLAYING && shear_state.is_active)
             ? playerAttackImg
             : playerImg;
 
         if (currentDrawImg.complete && currentDrawImg.naturalWidth !== 0) {
+            // アイドリング上下モーション
+            let bounce_y = Math.sin(global_time * 0.1) * 5;
+
+            ctx.save();
+            ctx.translate(player.x, player.y + bounce_y);
+
             ctx.drawImage(
                 currentDrawImg,
-                player.x - player.width / 2,
-                player.y - player.height / 2,
+                -player.width / 2,
+                -player.height / 2,
                 player.width,
                 player.height
             );
+            ctx.restore();
         }
     }
 
-    // 4. 敵描画
+    // 4. 敵描画（上下揺れモーション）
     if (current_state === GAME_STATE.PLAYING && enemy.is_alive) {
         let currentEnemyImg = enemyImages[enemy.type];
 
         ctx.save();
-        ctx.translate(enemy.x, enemy.y);
+        let enemy_bounce_y = (enemy.type !== 1) ? Math.sin(global_time * 0.15) * 4 : 0;
+        ctx.translate(enemy.x, enemy.y + enemy_bounce_y);
 
         if (enemy.type === 4) {
             ctx.rotate(enemy.angle);
@@ -600,36 +671,71 @@ function draw()
         ctx.restore();
     }
 
-    // 5. 毛刈り成功テキスト ＆ 連続毛刈り数表示
+    // 5. パーティクル（もこもこ毛玉・キラキラ）描画
+    for (let p of particles) {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, p.alpha);
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+    }
+
+    // 6. 毛刈り成功ポップテキスト（弾むアニメーション演出付き）
     if (shear_state.effect_timer > 0) {
-        let font_size_main = (width <= 1024) ? "36px" : "44px";
-        let font_size_sub = (width <= 1024) ? "28px" : "36px";
+        let progress = (22 - shear_state.effect_timer) / 22;
+        // ぽよんと膨らんで戻る拡大率計算
+        let scale = (progress < 0.3) ? (1.0 + progress * 1.5) : (1.45 - (progress - 0.3) * 0.5);
+
+        let font_size_num = (width <= 1024) ? 36 : 46;
         let offset_main = (width <= 1024) ? 130 : 180;
         let offset_sub = (width <= 1024) ? 170 : 230;
 
+        ctx.save();
+        ctx.translate(player.x - 70, player.y - offset_main);
+        ctx.scale(scale, scale);
+
+        // 文字フチ（白）
+        ctx.strokeStyle = "#FFFFFF";
+        ctx.lineWidth = 6;
+        ctx.font = "bold " + font_size_num + "px 'M PLUS Rounded 1c', sans-serif";
+        ctx.strokeText("毛刈り成功!!", 0, 0);
+
+        // 文字本体（金黄色）
         ctx.fillStyle = "#FFD700";
-        ctx.font = "bold " + font_size_main + " 'M PLUS Rounded 1c', sans-serif";
-        ctx.fillText("毛刈り成功!!", player.x - 70, player.y - offset_main);
+        ctx.fillText("毛刈り成功!!", 0, 0);
+        ctx.restore();
 
         if (combo >= 2) {
+            ctx.save();
+            ctx.translate(player.x - 60, player.y - offset_sub);
+            ctx.scale(scale, scale);
+
+            let sub_font_size = (width <= 1024) ? 28 : 36;
+            ctx.strokeStyle = "#FFFFFF";
+            ctx.lineWidth = 5;
+            ctx.font = "bold " + sub_font_size + "px 'M PLUS Rounded 1c', sans-serif";
+            ctx.strokeText("連続毛刈り " + combo + "回!", 0, 0);
+
             ctx.fillStyle = "#FF5722";
-            ctx.font = "bold " + font_size_sub + " 'M PLUS Rounded 1c', sans-serif";
-            ctx.fillText("連続毛刈り " + combo + "回!", player.x - 60, player.y - offset_sub);
+            ctx.fillText("連続毛刈り " + combo + "回!", 0, 0);
+            ctx.restore();
         }
     }
 
-    // 6. UI表示
+    // 7. UI表示（絵本風ポップフォント）
     if (current_state !== GAME_STATE.TITLE) {
         ctx.fillStyle = "#333";
         ctx.font = "bold 22px 'M PLUS Rounded 1c', sans-serif";
-        ctx.fillText("毛刈り成功数: " + score, 20, 40);
+        ctx.fillText("毛刈り成功数: " + score, 25, 45);
 
         if (combo >= 2) {
             ctx.fillStyle = "#FF5722";
-            ctx.fillText("連続毛刈り数: " + combo, 20, 70);
+            ctx.fillText("連続毛刈り数: " + combo, 25, 78);
         } else {
             ctx.fillStyle = "#888";
-            ctx.fillText("連続毛刈り数: 0", 20, 70);
+            ctx.fillText("連続毛刈り数: 0", 25, 78);
         }
 
         let hp_hearts = "";
@@ -637,21 +743,22 @@ function draw()
             hp_hearts += (i < player.hp) ? "❤️" : "🖤";
         }
         ctx.fillStyle = "#333";
-        ctx.fillText("たいりょく: " + hp_hearts, 20, 105);
+        ctx.fillText("たいりょく: " + hp_hearts, 25, 115);
 
-        let type_name = ENEMY_TYPE_NAMES[enemy.type] || "通常";
-        ctx.font = "16px 'M PLUS Rounded 1c', sans-serif";
-        ctx.fillText("つぎの敵: " + type_name, 20, 135);
+        let type_name = ENEMY_TYPE_NAMES[enemy.type] || "通常羊";
+        ctx.font = "bold 16px 'M PLUS Rounded 1c', sans-serif";
+        ctx.fillStyle = "#555";
+        ctx.fillText("つぎの敵: " + type_name, 25, 145);
     }
 
-    // 7. ゲームオーバー画面描画
+    // 8. ゲームオーバー画面描画
     if (current_state === GAME_STATE.GAMEOVER) {
-        ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+        ctx.fillStyle = "rgba(0, 0, 0, 0.82)";
         ctx.fillRect(-20, -20, (width || 800) + 40, (height || 600) + 40);
 
         ctx.textAlign = "center";
 
-        ctx.fillStyle = "#FF3333";
+        ctx.fillStyle = "#FF5252";
         ctx.font = "bold 52px 'M PLUS Rounded 1c', sans-serif";
         ctx.fillText("ゲームオーバー", (width || 800) / 2, (height || 600) / 2 - 70);
 
@@ -665,14 +772,20 @@ function draw()
 
         // ボタン1: もう一度あそぶ
         ctx.fillStyle = "#4CAF50";
-        ctx.fillRect(buttons.retry.x, buttons.retry.y, buttons.retry.w, buttons.retry.h);
+        ctx.beginPath();
+        ctx.roundRect(buttons.retry.x, buttons.retry.y, buttons.retry.w, buttons.retry.h, 25);
+        ctx.fill();
+
         ctx.fillStyle = "#FFF";
         ctx.font = "bold 18px 'M PLUS Rounded 1c', sans-serif";
         ctx.fillText("もう一度あそぶ", buttons.retry.x + buttons.retry.w / 2, buttons.retry.y + 32);
 
         // ボタン2: タイトルへ戻る
         ctx.fillStyle = "#757575";
-        ctx.fillRect(buttons.top.x, buttons.top.y, buttons.top.w, buttons.top.h);
+        ctx.beginPath();
+        ctx.roundRect(buttons.top.x, buttons.top.y, buttons.top.w, buttons.top.h, 25);
+        ctx.fill();
+
         ctx.fillStyle = "#FFF";
         ctx.font = "bold 18px 'M PLUS Rounded 1c', sans-serif";
         ctx.fillText("タイトルへ戻る", buttons.top.x + buttons.top.w / 2, buttons.top.y + 32);

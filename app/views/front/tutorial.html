@@ -40,7 +40,21 @@
             height: 100%;
         }
 
-        /* --- 画面回転アラート（スマホの縦向き時のみ表示） --- */
+        /* --- 絵本風の内側フレーム枠（世界観統一） --- */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            border: 8px solid rgba(255, 255, 255, 0.45);
+            box-sizing: border-box;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        /* --- 画面回転アラート --- */
         #rotate_warning {
             display: none;
             position: fixed;
@@ -82,7 +96,7 @@
             100% { transform: rotate(0deg); }
         }
 
-        /* --- 指示ボード（ポップアップ）のリッチ化 --- */
+        /* --- 指示ボード（ポップアップ） --- */
         #instruction_card {
             position: absolute;
             top: 75px;
@@ -123,7 +137,7 @@
             min-height: 40px;
         }
 
-        /* 共通UIボタン */
+        /* 共通UIボタン（ぷにっと沈み込むアニメーション） */
         .ui_btn {
             padding: 8px 22px;
             border: none;
@@ -134,12 +148,16 @@
             color: #fff;
             cursor: pointer;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
         }
 
         .ui_btn:hover {
-            transform: translateY(-2px) scale(1.03);
+            transform: translateY(-3px) scale(1.03);
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+        }
+
+        .ui_btn:active {
+            transform: translateY(1px) scale(0.97);
         }
 
         /* 左上：タイトルへ戻るボタン */
@@ -208,6 +226,8 @@
             const canvas = document.getElementById('game_canvas');
             const ctx = canvas.getContext('2d');
             let width, height;
+            let global_time = 0; // アニメーション用タイマー
+            let particles = [];  // もこもこ毛玉パーティクル用
 
             const playerImg = new Image();
             playerImg.src = '../../assets/img/player1.png';
@@ -323,6 +343,25 @@
                 trigger_shear();
             });
 
+            // 成功時のもこもこ毛玉パーティクル生成
+            function create_wool_particles(x, y) {
+                let count = 15;
+                for (let i = 0; i < count; i++) {
+                    let angle = Math.random() * Math.PI * 2;
+                    let speed = Math.random() * 8 + 3;
+                    particles.push({
+                        x: x,
+                        y: y,
+                        vx: Math.cos(angle) * speed,
+                        vy: Math.sin(angle) * speed - 2,
+                        radius: Math.random() * 12 + 8,
+                        color: (Math.random() < 0.7) ? "#FFFFFF" : "#FFD700",
+                        alpha: 1.0,
+                        life: 30 + Math.random() * 15
+                    });
+                }
+            }
+
             function trigger_shear() {
                 if (currentStep === 4) return;
 
@@ -347,10 +386,13 @@
                     if (dist_shear < player.radius + enemy.radius + shear_extra) {
                         enemy.is_sheared = true;
                         play_se(sound.parry);
-                        shear_state.effect_timer = 20;
+                        shear_state.effect_timer = 22;
                         hit_stop_timer = 6;
                         shake_timer = 12;
                         shake_intensity = 15;
+
+                        // パーティクル発生
+                        create_wool_particles(enemy.x, enemy.y);
 
                         combo++;
 
@@ -490,15 +532,56 @@
                         }
                     }
                 }
+
+                // お花装飾
+                let flower_positions = [0.2, 0.5, 0.8];
+                let flower_colors = ["#FF7043", "#EC407A", "#FFCA28"];
+                let wind = Math.sin(global_time * 0.05) * 4;
+
+                for (let i = 0; i < flower_positions.length; i++) {
+                    let fx = width * flower_positions[i];
+                    let fy = ground_y + 25 + (i % 2) * 15;
+
+                    ctx.strokeStyle = "#689F38";
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(fx, fy + 15);
+                    ctx.quadraticCurveTo(fx + wind, fy, fx + wind, fy - 10);
+                    ctx.stroke();
+
+                    ctx.fillStyle = flower_colors[i];
+                    ctx.beginPath();
+                    ctx.arc(fx + wind, fy - 10, 7, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.fillStyle = "#FFF";
+                    ctx.beginPath();
+                    ctx.arc(fx + wind, fy - 10, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
             }
 
             function game_loop() {
+                global_time++;
+
                 if (hit_stop_timer > 0) {
                     hit_stop_timer--;
                 } else {
                     for (let c of clouds) {
                         c.x -= c.speed;
                         if (c.x < -150) c.x += width + 300;
+                    }
+
+                    // パーティクル更新
+                    for (let i = particles.length - 1; i >= 0; i--) {
+                        let p = particles[i];
+                        p.x += p.vx;
+                        p.y += p.vy;
+                        p.vy += 0.3;
+                        p.alpha -= 1.0 / p.life;
+                        if (p.alpha <= 0) {
+                            particles.splice(i, 1);
+                        }
                     }
 
                     if (shear_state.is_active) {
@@ -568,23 +651,30 @@
                 let ground_y = player.y + player.radius;
                 drawGrassland(ctx, width, height, ground_y);
 
+                // プレイヤー描画（ぷにぷにモーション）
                 if (player.invincible_timer % 4 < 2) {
                     let currentDrawImg = shear_state.is_active ? playerAttackImg : playerImg;
                     if (currentDrawImg.complete && currentDrawImg.naturalWidth !== 0) {
+                        let bounce_y = Math.sin(global_time * 0.1) * 5;
+                        ctx.save();
+                        ctx.translate(player.x, player.y + bounce_y);
                         ctx.drawImage(
                             currentDrawImg,
-                            player.x - player.width / 2,
-                            player.y - player.height / 2,
+                            -player.width / 2,
+                            -player.height / 2,
                             player.width,
                             player.height
                         );
+                        ctx.restore();
                     }
                 }
 
+                // 敵描画
                 if (enemy.is_alive) {
                     if (enemyImg.complete && enemyImg.naturalWidth !== 0) {
                         ctx.save();
-                        ctx.translate(enemy.x, enemy.y);
+                        let enemy_bounce_y = Math.sin(global_time * 0.15) * 4;
+                        ctx.translate(enemy.x, enemy.y + enemy_bounce_y);
                         if (enemy.is_sheared) ctx.globalAlpha = 0.5;
                         ctx.drawImage(
                             enemyImg,
@@ -595,6 +685,17 @@
                         );
                         ctx.restore();
                     }
+                }
+
+                // パーティクル描画
+                for (let p of particles) {
+                    ctx.save();
+                    ctx.globalAlpha = Math.max(0, p.alpha);
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
                 }
 
                 if (currentStep === 2 && enemy.is_stopped) {
@@ -610,21 +711,42 @@
                     ctx.setLineDash([]);
                 }
 
+                // 毛刈り成功ポップテキスト（弾むアニメーション）
                 if (shear_state.effect_timer > 0) {
-                    let font_size_main = (width <= 1024) ? "32px" : "44px";
-                    let font_size_sub = (width <= 1024) ? "24px" : "36px";
+                    let progress = (22 - shear_state.effect_timer) / 22;
+                    let scale = (progress < 0.3) ? (1.0 + progress * 1.5) : (1.45 - (progress - 0.3) * 0.5);
+
+                    let font_size_num = (width <= 1024) ? 32 : 44;
                     let offset_main = (width <= 1024) ? 110 : 180;
                     let offset_sub = (width <= 1024) ? 140 : 230;
 
+                    ctx.save();
+                    ctx.translate(player.x - 70, player.y - offset_main);
+                    ctx.scale(scale, scale);
+
+                    ctx.strokeStyle = "#FFFFFF";
+                    ctx.lineWidth = 6;
+                    ctx.font = "bold " + font_size_num + "px 'M PLUS Rounded 1c', sans-serif";
+                    ctx.strokeText("毛刈り成功!!", 0, 0);
+
                     ctx.fillStyle = "#FFD700";
-                    // キャンバス上の文字にも丸ゴシック系のフォントを指定して統一感アップ
-                    ctx.font = "bold " + font_size_main + " 'M PLUS Rounded 1c', sans-serif";
-                    ctx.fillText("毛刈り成功!!", player.x - 70, player.y - offset_main);
+                    ctx.fillText("毛刈り成功!!", 0, 0);
+                    ctx.restore();
 
                     if (combo >= 2) {
+                        ctx.save();
+                        ctx.translate(player.x - 60, player.y - offset_sub);
+                        ctx.scale(scale, scale);
+
+                        let sub_font_size = (width <= 1024) ? 24 : 36;
+                        ctx.strokeStyle = "#FFFFFF";
+                        ctx.lineWidth = 5;
+                        ctx.font = "bold " + sub_font_size + "px 'M PLUS Rounded 1c', sans-serif";
+                        ctx.strokeText("連続毛刈り " + combo + "回!", 0, 0);
+
                         ctx.fillStyle = "#FF5722";
-                        ctx.font = "bold " + font_size_sub + " 'M PLUS Rounded 1c', sans-serif";
-                        ctx.fillText("連続毛刈り " + combo + "回!", player.x - 60, player.y - offset_sub);
+                        ctx.fillText("連続毛刈り " + combo + "回!", 0, 0);
+                        ctx.restore();
                     }
                 }
 

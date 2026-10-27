@@ -37,7 +37,21 @@
    height: 100vh;
   }
 
-  /* --- 画面回転アラート（スマホの縦向き時のみ表示） --- */
+  /* --- 絵本風の内側フレーム枠（世界観統一） --- */
+  body::after {
+   content: '';
+   position: fixed;
+   top: 0;
+   left: 0;
+   width: 100vw;
+   height: 100vh;
+   border: 8px solid rgba(255, 255, 255, 0.45);
+   box-sizing: border-box;
+   pointer-events: none;
+   z-index: 999;
+  }
+
+  /* --- 画面回転アラート --- */
   #rotate_warning {
    display: none;
    position: fixed;
@@ -67,7 +81,6 @@
    line-height: 1.6;
   }
 
-  /* スマホかつ縦向きの場合のみ表示 */
   @media screen and (max-width: 1024px) and (orientation: portrait) {
    #rotate_warning {
     display: flex !important;
@@ -91,21 +104,21 @@
    flex-direction: column !important;
    justify-content: center !important;
    align-items: center !important;
-   gap: 20px !important;
+   gap: 16px !important;
    z-index: 1000 !important;
-   background-color: rgba(0, 0, 0, 0.3) !important;
+   background-color: rgba(0, 0, 0, 0.35) !important;
+   backdrop-filter: blur(2px) !important;
    margin: 0 !important;
    padding: 0 !important;
   }
 
-  /* JS側で付与される .hide を絶対最優先で非表示にする設定 */
   .hide,
   #start_panel.hide,
   #btn_start.hide {
    display: none !important;
   }
 
-  /* ボタン共通スタイル */
+  /* ボタン共通スタイル（ぷにっと押し込めるアニメーション付き） */
   .custom_start_btn {
    position: static !important;
    transform: none !important;
@@ -113,19 +126,23 @@
    width: 240px !important;
    padding: 14px 0 !important;
    font-family: 'M PLUS Rounded 1c', sans-serif !important;
-   font-size: 1.1rem !important;
+   font-size: 1.15rem !important;
    font-weight: 800 !important;
    color: #ffffff !important;
-   border: none !important;
+   border: 3px solid #FFFFFF !important;
    border-radius: 30px !important;
    cursor: pointer !important;
-   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3) !important;
-   transition: transform 0.2s, background-color 0.2s !important;
+   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25) !important;
+   transition: transform 0.15s ease, opacity 0.2s !important;
    text-align: center !important;
   }
 
   .custom_start_btn:hover {
-   transform: scale(1.05) !important;
+   transform: translateY(-3px) scale(1.03) !important;
+  }
+
+  .custom_start_btn:active {
+   transform: translateY(1px) scale(0.97) !important;
   }
 
   #btn_start {
@@ -160,7 +177,6 @@
 
  <script>
   $(function() {
-   // タイトルへ戻るボタンのイベント（委譲で設定）
    $(document).on('click', '#btn_back_title', function(e) {
      e.stopPropagation();
      window.location.href = '../../../index.html';

@@ -26,13 +26,26 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            /* 全体のフォントを丸ゴシックに変更 */
             font-family: 'M PLUS Rounded 1c', sans-serif;
             background-color: #B3E5FC;
             overflow: hidden;
             user-select: none;
             position: relative;
             touch-action: none;
+        }
+
+        /* --- 絵本風の内側フレーム枠（世界観統一） --- */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            border: 8px solid rgba(255, 255, 255, 0.45);
+            box-sizing: border-box;
+            pointer-events: none;
+            z-index: 999;
         }
 
         /* --- 画面回転アラート --- */
@@ -121,36 +134,42 @@
             border-top-right-radius: 50% 20px;
         }
 
-        /* --- 背景装飾：PNG画像 --- */
+        /* --- 背景装飾：PNG画像（ふわふわ浮遊・揺れアニメーション付き） --- */
         .scattered-img {
             position: absolute;
             z-index: 3;
             pointer-events: none;
-            opacity: 0.85;
+            opacity: 0.9;
             filter: drop-shadow(0 8px 12px rgba(0,0,0,0.18));
             object-fit: contain;
             max-width: 18vw;
+            animation: floatChar 3s infinite ease-in-out alternate;
         }
 
-        .rot-1 { transform: rotate(-20deg); }
-        .rot-2 { transform: rotate(25deg); }
-        .rot-3 { transform: scaleX(-1) rotate(-30deg); }
-        .rot-4 { transform: scaleX(-1) rotate(20deg); }
-        .rot-5 { transform: rotate(-40deg); }
-        .rot-6 { transform: rotate(35deg); }
+        @keyframes floatChar {
+            0% { transform: translateY(0px) rotate(var(--rot)); }
+            100% { transform: translateY(-8px) rotate(var(--rot)); }
+        }
+
+        .rot-1 { --rot: -20deg; transform: rotate(-20deg); }
+        .rot-2 { --rot: 25deg; transform: rotate(25deg); }
+        .rot-3 { --rot: -30deg; transform: scaleX(-1) rotate(-30deg); }
+        .rot-4 { --rot: 20deg; transform: scaleX(-1) rotate(20deg); }
+        .rot-5 { --rot: -40deg; transform: rotate(-40deg); }
+        .rot-6 { --rot: 35deg; transform: rotate(35deg); }
 
         /* --- メインコンテンツカード --- */
         .game-container {
             position: relative;
             z-index: 10;
             text-align: center;
-            background-color: rgba(255, 255, 255, 0.94);
+            background-color: rgba(255, 255, 255, 0.95);
             padding: 35px 45px;
             border-radius: 24px;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
             max-width: 480px;
             width: 85%;
-            border: 4px solid #FFF;
+            border: 4px solid #FF9800;
         }
 
         h1 {
@@ -158,7 +177,6 @@
             font-size: clamp(1.6rem, 3.8vw, 2.5rem);
             font-weight: 800;
             margin: 0 0 8px 0;
-            /* 文字に立体的なフチと影をつけて絵本風に */
             text-shadow: 2px 2px 0 #FFE0B2, 4px 4px 0 rgba(0,0,0,0.08);
         }
 
@@ -176,6 +194,7 @@
             align-items: center;
         }
 
+        /* ボタン共通（ぷにっと沈み込むアニメーション） */
         .btn {
             width: 230px;
             height: 48px;
@@ -187,14 +206,15 @@
             font-weight: 800;
             color: #fff;
             cursor: pointer;
-            transition: transform 0.15s ease, opacity 0.2s;
+            transition: transform 0.15s ease, opacity 0.2s, box-shadow 0.2s;
             outline: none;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
         }
 
         .btn:hover {
             opacity: 0.92;
             transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 7px 18px rgba(0, 0, 0, 0.22);
         }
 
         .btn:active {
@@ -245,7 +265,7 @@
             overflow-y: auto;
             text-align: left;
             color: #333;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
             border: 4px solid #FF9800;
         }
 
@@ -292,6 +312,7 @@
             font-weight: 800;
             cursor: pointer;
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            transition: all 0.15s ease;
         }
 
         .btn-close:hover {
@@ -329,7 +350,7 @@
     <!-- 背景装飾：草原 -->
     <div class="grassland"></div>
 
-    <!-- 背景装飾：PNG画像アセット -->
+    <!-- 背景装飾：PNG画像アセット（ふわふわ浮遊アニメーション付き） -->
     <img src="./app/assets/img/player1_attack.png" class="scattered-img rot-1" style="top: 10%; left: 12%; width: 170px;" alt="player">
     <img src="./app/assets/img/enemy1.png" class="scattered-img rot-2" style="top: 8%; right: 12%; width: 160px;" alt="enemy">
     <img src="./app/assets/img/player1_attack.png" class="scattered-img rot-3" style="bottom: 10%; left: 14%; width: 180px;" alt="player">
