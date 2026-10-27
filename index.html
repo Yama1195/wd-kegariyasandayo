@@ -2,17 +2,21 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>毛刈り屋さんだよ～</title>
     <style>
         * {
             box-sizing: border-box;
         }
 
-        body {
+        body, html {
             margin: 0;
             padding: 0;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
             display: flex;
             justify-content: center;
             align-items: center;
@@ -21,6 +25,51 @@
             overflow: hidden;
             user-select: none;
             position: relative;
+            touch-action: none;
+        }
+
+        /* --- 画面回転アラート（スマホの縦向き時のみ表示） --- */
+        #rotate_warning {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 99999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            font-family: sans-serif;
+        }
+
+        #rotate_warning .warning_icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: rotate_anim 1.5s infinite ease-in-out;
+        }
+
+        #rotate_warning .warning_text {
+            font-size: 1.2rem;
+            font-weight: bold;
+            line-height: 1.6;
+        }
+
+        /* スマホかつ縦向きの場合のみ表示 */
+        @media screen and (max-width: 1024px) and (orientation: portrait) {
+            #rotate_warning {
+                display: flex !important;
+            }
+        }
+
+        @keyframes rotate_anim {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(90deg); }
+            100% { transform: rotate(0deg); }
         }
 
         /* --- 背景装飾：流れる雲 --- */
@@ -100,7 +149,7 @@
             z-index: 10;
             text-align: center;
             background-color: rgba(255, 255, 255, 0.92);
-            padding: 40px 50px;
+            padding: 30px 40px;
             border-radius: 20px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
             max-width: 480px;
@@ -110,33 +159,33 @@
 
         h1 {
             color: #E91E63;
-            font-size: clamp(1.8rem, 4vw, 2.6rem);
+            font-size: clamp(1.5rem, 3.5vw, 2.4rem);
             font-weight: bold;
-            margin: 0 0 10px 0;
+            margin: 0 0 8px 0;
             text-shadow: 2px 2px 0 #fff;
         }
 
         .subtitle {
             color: #444;
-            font-size: clamp(0.9rem, 2vw, 1.05rem);
-            margin-bottom: 30px;
+            font-size: clamp(0.85rem, 1.8vw, 1rem);
+            margin-bottom: 22px;
             font-weight: bold;
         }
 
         .button-group {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
             align-items: center;
         }
 
         .btn {
             width: 220px;
-            height: 50px;
-            line-height: 50px;
+            height: 46px;
+            line-height: 46px;
             border: none;
             border-radius: 8px;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: bold;
             color: #fff;
             cursor: pointer;
@@ -159,7 +208,7 @@
         }
 
         .btn-tutorial {
-            background-color: #FF9800; /* オレンジ（チュートリアル用） */
+            background-color: #FF9800;
         }
 
         .btn-howTo {
@@ -191,10 +240,10 @@
         .modal-body {
             background: #fff;
             border-radius: 12px;
-            padding: 30px;
+            padding: 25px;
             max-width: 440px;
             width: 85%;
-            max-height: 85vh;
+            max-height: 80vh;
             overflow-y: auto;
             text-align: left;
             color: #333;
@@ -202,11 +251,11 @@
         }
 
         .modal-title {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-weight: bold;
             margin-top: 0;
-            margin-bottom: 20px;
-            padding-bottom: 8px;
+            margin-bottom: 15px;
+            padding-bottom: 6px;
             border-bottom: 2px solid #ddd;
             color: #333;
             text-align: center;
@@ -214,13 +263,13 @@
 
         .modal-list {
             padding-left: 20px;
-            margin-bottom: 25px;
-            line-height: 1.6;
-            font-size: 0.95rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            font-size: 0.9rem;
         }
 
         .modal-list li {
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .highlight {
@@ -232,13 +281,13 @@
             display: block;
             margin: 0 auto;
             width: 120px;
-            height: 40px;
-            line-height: 40px;
+            height: 38px;
+            line-height: 38px;
             background-color: #757575;
             color: white;
             border: none;
             border-radius: 6px;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             font-weight: bold;
             cursor: pointer;
         }
@@ -246,9 +295,41 @@
         .btn-close:hover {
             opacity: 0.85;
         }
+
+        /* 画面の高さが低いスマホ横持ち時のコンパクト調整 */
+        @media screen and (max-height: 500px) {
+            .game-container {
+                padding: 15px 25px;
+            }
+            h1 {
+                font-size: 1.3rem;
+                margin-bottom: 4px;
+            }
+            .subtitle {
+                font-size: 0.8rem;
+                margin-bottom: 15px;
+            }
+            .btn {
+                height: 38px;
+                line-height: 38px;
+                font-size: 0.95rem;
+            }
+            .button-group {
+                gap: 8px;
+            }
+        }
     </style>
 </head>
 <body>
+
+    <!-- スマホ縦向き時の回転アラート -->
+    <div id="rotate_warning">
+        <div class="warning_icon">📱🔄</div>
+        <div class="warning_text">
+            画面を横向きにして遊んでね！<br>
+            <span style="font-size: 0.9rem; color: #FF9800; font-weight: normal;">(スマートフォンを横に回転させてください)</span>
+        </div>
+    </div>
 
     <!-- 背景装飾：流れる雲 -->
     <div class="cloud cloud1"></div>
