@@ -1,20 +1,15 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
  <title>毛刈り屋さんだよ</title>
  <meta charset="UTF-8">
  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
- <!-- Google Fonts: 丸ゴシック「M PLUS Rounded 1c」を読み込み -->
  <link rel="preconnect" href="https://fonts.googleapis.com">
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700;800&display=swap" rel="stylesheet">
 
- <!-- CSS読み込み -->
  <link rel="stylesheet" href="../../assets/css/front/front.css">
-
- <!-- JS読み込み（jquery） -->
  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
  <script src="../../assets/js/front/front_game.js"></script>
 
@@ -35,7 +30,6 @@
    height: 100vh;
   }
 
-  /* --- 絵本風の内側フレーム枠 --- */
   body::after {
    content: '';
    position: fixed;
@@ -49,7 +43,6 @@
    z-index: 999;
   }
 
-  /* --- 画面回転アラート --- */
   #rotate_warning {
    display: none;
    position: fixed;
@@ -80,9 +73,7 @@
   }
 
   @media screen and (max-width: 1024px) and (orientation: portrait) {
-   #rotate_warning {
-    display: flex !important;
-   }
+   #rotate_warning { display: flex !important; }
   }
 
   @keyframes rotate_anim {
@@ -109,9 +100,7 @@
    padding: 0 !important;
   }
 
-  .hide,
-  #start_panel.hide,
-  #btn_start.hide {
+  .hide, #start_panel.hide, #btn_start.hide {
    display: none !important;
   }
 
@@ -133,27 +122,15 @@
    text-align: center !important;
   }
 
-  .custom_start_btn:hover {
-   transform: translateY(-3px) scale(1.03) !important;
-  }
+  .custom_start_btn:hover { transform: translateY(-3px) scale(1.03) !important; }
+  .custom_start_btn:active { transform: translateY(1px) scale(0.97) !important; }
 
-  .custom_start_btn:active {
-   transform: translateY(1px) scale(0.97) !important;
-  }
-
-  #btn_start {
-   background-color: #4CAF50 !important;
-  }
-
-  #btn_back_title {
-   background-color: #757575 !important;
-  }
+  #btn_start { background-color: #4CAF50 !important; }
+  #btn_back_title { background-color: #757575 !important; }
  </style>
 </head>
-
 <body>
 
- <!-- スマホ縦向き時の回転アラート -->
  <div id="rotate_warning">
   <div class="warning_icon">📱🔄</div>
   <div class="warning_text">
@@ -162,33 +139,15 @@
   </div>
  </div>
 
- <!-- 開始ボタンエリア -->
  <div id="start_panel">
   <button id="btn_start" class="custom_start_btn">ゲームスタート</button> 
   <button id="btn_back_title" class="custom_start_btn">タイトルへ戻る</button>
  </div>
 
- <!-- ゲーム描画用キャンバス -->
  <canvas id="game_canvas"></canvas>
 
  <script>
-  // フルスクリーン化ヘルパー
-  function requestFullScreen() {
-      let elem = document.documentElement;
-      if (elem.requestFullscreen) {
-          elem.requestFullscreen().catch(() => {});
-      } else if (elem.webkitRequestFullscreen) {
-          elem.webkitRequestFullscreen();
-      }
-  }
-
   $(function() {
-   // ゲームスタートボタン押下時にフルスクリーン要求
-   $('#btn_start').on('click', function(e) {
-       requestFullScreen();
-   });
-
-   // タイトルへ戻るボタンのイベント
    $(document).on('click', '#btn_back_title', function(e) {
      e.stopPropagation();
      window.location.href = '../../../index.html';

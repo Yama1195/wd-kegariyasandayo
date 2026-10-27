@@ -34,7 +34,7 @@
             touch-action: none;
         }
 
-        /* --- 絵本風の内側フレーム枠（世界観統一） --- */
+        /* --- 絵本風の内側フレーム枠 --- */
         body::after {
             content: '';
             position: fixed;
@@ -134,7 +134,7 @@
             border-top-right-radius: 50% 20px;
         }
 
-        /* --- 背景装飾：PNG画像（ふわふわ浮遊・揺れアニメーション付き） --- */
+        /* --- 背景装飾：PNG画像 --- */
         .scattered-img {
             position: absolute;
             z-index: 3;
@@ -220,17 +220,9 @@
             transform: translateY(1px) scale(0.98);
         }
 
-        .btn-start {
-            background-color: #4CAF50;
-        }
-
-        .btn-tutorial {
-            background-color: #FF9800;
-        }
-
-        .btn-howTo {
-            background-color: #00BCD4;
-        }
+        .btn-start { background-color: #4CAF50; }
+        .btn-tutorial { background-color: #FF9800; }
+        .btn-howTo { background-color: #00BCD4; }
 
         /* --- あそびかたモーダル --- */
         .modal-overlay {
@@ -287,14 +279,8 @@
             font-weight: 700;
         }
 
-        .modal-list li {
-            margin-bottom: 10px;
-        }
-
-        .highlight {
-            color: #FF5722;
-            font-weight: 800;
-        }
+        .modal-list li { margin-bottom: 10px; }
+        .highlight { color: #FF5722; font-weight: 800; }
 
         .btn-close {
             display: block;
@@ -318,16 +304,6 @@
             opacity: 0.85;
             transform: translateY(-2px);
         }
-
-        @media screen and (max-height: 500px) {
-            .game-container {
-                padding: 15px 25px;
-            }
-            h1 { font-size: 1.3rem; margin-bottom: 4px; }
-            .subtitle { font-size: 0.8rem; margin-bottom: 12px; }
-            .btn { height: 40px; line-height: 40px; font-size: 0.95rem; }
-            .button-group { gap: 8px; }
-        }
     </style>
 </head>
 <body>
@@ -341,23 +317,17 @@
         </div>
     </div>
 
-    <!-- 背景装飾：流れる雲 -->
+    <!-- 背景装飾 -->
     <div class="cloud cloud1"></div>
     <div class="cloud cloud2"></div>
     <div class="cloud cloud3"></div>
-
-    <!-- 背景装飾：草原 -->
     <div class="grassland"></div>
 
-    <!-- 背景装飾：PNG画像アセット -->
     <img src="./app/assets/img/player1_attack.png" class="scattered-img rot-1" style="top: 10%; left: 12%; width: 170px;" alt="player">
     <img src="./app/assets/img/enemy1.png" class="scattered-img rot-2" style="top: 8%; right: 12%; width: 160px;" alt="enemy">
     <img src="./app/assets/img/player1_attack.png" class="scattered-img rot-3" style="bottom: 10%; left: 14%; width: 180px;" alt="player">
     <img src="./app/assets/img/enemy1.png" class="scattered-img rot-4" style="bottom: 8%; right: 15%; width: 170px;" alt="enemy">
-    <img src="./app/assets/img/enemy1.png" class="scattered-img rot-5" style="top: 40%; left: 6%; width: 140px;" alt="enemy">
-    <img src="./app/assets/img/player1_attack.png" class="scattered-img rot-6" style="top: 38%; right: 7%; width: 150px;" alt="player">
 
-    <!-- メインコンテンツ -->
     <div class="game-container">
         <h1>毛刈り屋さんだよ～</h1>
         <div class="subtitle">タイミングよく毛を刈り取ろう！</div>
@@ -374,51 +344,25 @@
         <div class="modal-body">
             <div class="modal-title">あそびかた</div>
             <ul class="modal-list">
-                <li>
-                    <span class="highlight">スペースキー</span> または <span class="highlight">画面クリック</span> で毛刈りアクションを行います。
-                </li>
-                <li>
-                    左から走ってくる敵が、<span class="highlight">自分に近づいたタイミング</span> で毛を刈り取りましょう。
-                </li>
-                <li>
-                    タイミングが合うと「毛刈り成功」となりスコアが増えます。連続で成功させるとコンボ数が加算されます。
-                </li>
-                <li>
-                    ぶつかると「たいりょく」が減り、0になるとゲームオーバーです。
-                </li>
+                <li><span class="highlight">スペースキー</span> または <span class="highlight">画面クリック</span> で毛刈りアクションを行います。</li>
+                <li>左から走ってくる敵が、<span class="highlight">自分に近づいたタイミング</span> で毛を刈り取りましょう。</li>
+                <li>タイミングが合うと「毛刈り成功」となりスコアが増えます。連続で成功させるとコンボ数が加算されます。</li>
+                <li>ぶつかると「たいりょく」が減り、0になるとゲームオーバーです。</li>
+                <li><span style="color: #0288D1;">※iPhone等で遊ぶ場合は、Safariの共有メニューから「ホーム画面に追加」して起動すると全画面で快適に遊べます！</span></li>
             </ul>
             <button id="btn_close" class="btn-close">とじる</button>
         </div>
     </div>
 
-    <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        // フルスクリーンを有効化するヘルパー関数
-        function requestFullScreen() {
-            let elem = document.documentElement;
-            if (elem.requestFullscreen) {
-                elem.requestFullscreen().catch(() => {});
-            } else if (elem.webkitRequestFullscreen) {
-                elem.webkitRequestFullscreen();
-            }
-        }
-
         $(function() {
-            // スタートボタン -> フルスクリーン要求 ＋ 本編画面へ遷移
             $('#btn_start').on('click', function() {
-                requestFullScreen();
-                setTimeout(function() {
-                    window.location.href = './app/views/front/game.html';
-                }, 150); // フルスクリーン処理の実行を少しだけ待ってから画面遷移
+                window.location.href = './app/views/front/game.html';
             });
 
-            // チュートリアルボタン -> フルスクリーン要求 ＋ チュートリアル画面へ遷移
             $('#btn_tutorial').on('click', function() {
-                requestFullScreen();
-                setTimeout(function() {
-                    window.location.href = './app/views/front/tutorial.html';
-                }, 150);
+                window.location.href = './app/views/front/tutorial.html';
             });
 
             $('#btn_howTo').on('click', function() {

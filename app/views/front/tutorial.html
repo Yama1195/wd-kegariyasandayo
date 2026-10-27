@@ -220,16 +220,6 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        // フルスクリーン化ヘルパー
-        function requestFullScreen() {
-            let elem = document.documentElement;
-            if (elem.requestFullscreen) {
-                elem.requestFullscreen().catch(() => {});
-            } else if (elem.webkitRequestFullscreen) {
-                elem.webkitRequestFullscreen();
-            }
-        }
-
         $(function() {
             const canvas = document.getElementById('game_canvas');
             const ctx = canvas.getContext('2d');
@@ -761,13 +751,9 @@
                 window.location.href = '../../../index.html';
             });
 
-            // 本番ゲームへ進むボタン（フルスクリーン要求を追加）
             $('#btn_start_game').on('click', function(e) {
                 e.stopPropagation();
-                requestFullScreen();
-                setTimeout(function() {
-                    window.location.href = './game.html';
-                }, 150);
+                window.location.href = './game.html';
             });
         });
     </script>
